@@ -1,12 +1,22 @@
-import { FileItemGrid, type FileType } from "@/components/file";
+import { FileGridItem } from "@/components/file";
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderItem } from "#/components/folder";
+import { FolderGridItem } from "#/components/folder";
+import type { FileType } from "@/types";
 
-export const Route = createFileRoute("/")({ component: App });
+export const Route = createFileRoute("/")({
+  component: App,
+  loader: async (): Promise<FileType[]> => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/ls`);
+    const data = await res.json();
+    return data.files;
+  },
+});
 
 function App() {
-  const folders = filesData.filter((file) => !file.filename.includes("."));
-  const files = filesData.filter((file) => file.filename.includes("."));
+  const data = Route.useLoaderData();
+
+  const folders = data.filter((file) => file.isDirectory);
+  const files = data.filter((file) => !file.isDirectory);
 
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
@@ -16,8 +26,8 @@ function App() {
       <section>
         <h2>Folders</h2>
         <div className="mt-10 flex flex-wrap gap-4">
-          {folders.map((file) => (
-            <FolderItem file={file} key={file.id} />
+          {folders.map((file, i) => (
+            <FolderGridItem file={file} key={file.name + i + "-folder"} />
           ))}
         </div>
       </section>
@@ -25,8 +35,8 @@ function App() {
         <div>
           <h2>Files</h2>
           <div className="mt-10 flex flex-wrap gap-4">
-            {files.map((file) => (
-              <FileItemGrid file={file} key={file.id} />
+            {files.map((file, i) => (
+              <FileGridItem file={file} key={file.name + i + "-file"} />
             ))}
           </div>
         </div>
@@ -34,17 +44,3 @@ function App() {
     </main>
   );
 }
-
-const filesData: FileType[] = [
-  { filename: "somefile.txt", size: "10mb", id: 1 },
-  { filename: "somedirectory", size: "10mb", id: 2 },
-  { filename: "somedirectory", size: "10mb", id: 3 },
-  { filename: "somefile.mp4", size: "10mb", id: 4 },
-  { filename: "somefile.mp3", size: "10mb", id: 5 },
-
-  { filename: "somefile.txt", size: "10mb", id: 6 },
-  { filename: "somedirectory", size: "10mb", id: 7 },
-  { filename: "somedirectory", size: "10mb", id: 8 },
-  { filename: "somefile.mp4", size: "10mb", id: 9 },
-  { filename: "somefile.mp3", size: "10mb", id: 10 },
-];
