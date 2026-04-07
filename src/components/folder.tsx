@@ -4,14 +4,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { FileType } from "@/types";
+import { Link } from "@tanstack/react-router";
 
-export function FolderGridItem({ file }: { file: FileType }) {
+type Props = {
+  file: FileType;
+  currentPath: string;
+};
+
+export function FolderGridItem({ file, currentPath }: Props) {
+  const newPath = [currentPath, file.name].join("/");
+  const safePath = encodeURIComponent(newPath);
+
   return (
-    <article className="flex justify-between max-w-[90px] h-[130px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm">
+    <Link
+      to="/"
+      search={{ path: safePath }}
+      className="flex justify-between w-[100px] h-[130px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
+    >
       <Tooltip>
         <TooltipTrigger asChild>
-          <div>
-            <img src="/folder.png" alt="" width={90} />
+          <div className="w-full">
+            <img className="mx-auto" src="/folder.png" alt="" width={90} />
             <p className="text-sm line-clamp-2">{file.name}</p>
           </div>
         </TooltipTrigger>
@@ -19,6 +32,6 @@ export function FolderGridItem({ file }: { file: FileType }) {
           <p>{file.name}</p>
         </TooltipContent>
       </Tooltip>
-    </article>
+    </Link>
   );
 }

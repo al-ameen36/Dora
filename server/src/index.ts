@@ -1,8 +1,10 @@
 import express from "express";
+import cors from "cors";
 import { readdir, stat } from "node:fs/promises";
 import path from "path";
 
 const app = express();
+app.use(cors());
 const PORT = Number(process.env.PORT) || 3001;
 const ROOT_DIR = path.resolve(process.cwd()).split("/").slice(0, 3).join("/");
 
@@ -48,9 +50,14 @@ const lsDir = async (dirPath: string): Promise<FileItem[]> => {
   return list;
 };
 
-app.get("/ls", async (_req, res) => {
-  const files = await lsDir(ROOT_DIR);
-  res.json({ files });
+app.get("/ls", async (req, res) => {
+  let path = req.query.path as string;
+  if (!path) path = ROOT_DIR;
+
+  path = decodeURIComponent(path);
+
+  const files = await lsDir(path);
+  res.json({ files, currentPath: path });
 });
 
 app.listen(PORT, "0.0.0.0", () => {

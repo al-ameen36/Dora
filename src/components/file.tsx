@@ -38,11 +38,12 @@ export function FileGridItem({ file }: { file: FileType }) {
   const [src, setSrc] = useState(`${getFileIcon(file.name)}`);
 
   return (
-    <article className="flex justify-between max-w-[90px] h-[150px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm">
+    <article className="flex justify-between w-[100px] h-[150px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm">
       <Tooltip>
         <TooltipTrigger asChild>
-          <div>
+          <div className="w-full">
             <img
+              className="mx-auto"
               src={src}
               onError={() => {
                 if (src !== "/icons/file.png") {

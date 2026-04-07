@@ -3,3 +3,8 @@ export type FileType = {
   isDirectory: boolean;
   size: number;
 };
+
+export type FileResponse = {
+  files: FileType[];
+  currentPath: string;
+};
