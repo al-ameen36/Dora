@@ -6,14 +6,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import React from "react";
 
 export function Breadcrumbs({ currentPath }: { currentPath: string }) {
-  const location = useLocation();
-  const paths = currentPath.split("/");
-
-  const isCurrentPage = location.pathname === currentPath;
+  const paths = currentPath.split("/").filter((path) => path !== "");
 
   return (
     <Breadcrumb>
@@ -21,7 +18,7 @@ export function Breadcrumbs({ currentPath }: { currentPath: string }) {
         {paths.map((path, i) => (
           <React.Fragment key={path + i + "item"}>
             <BreadcrumbItem>
-              {isCurrentPage ? (
+              {i == 0 || i == paths.length - 1 ? (
                 <BreadcrumbPage>{path}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
@@ -41,5 +38,5 @@ export function Breadcrumbs({ currentPath }: { currentPath: string }) {
 
 const getURLSegment = (url: string[], endIndex: number) => {
   const newURL = url.slice(0, endIndex + 1).join("/");
-  return encodeURIComponent(newURL);
+  return "/" + encodeURIComponent(newURL);
 };

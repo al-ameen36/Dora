@@ -2,11 +2,12 @@ import express from "express";
 import cors from "cors";
 import { readdir, stat } from "node:fs/promises";
 import path from "path";
+import os from "os";
 
 const app = express();
 app.use(cors());
 const PORT = Number(process.env.PORT) || 3001;
-const ROOT_DIR = path.resolve(process.cwd()).split("/").slice(0, 3).join("/");
+const ROOT_DIR = os.homedir();
 
 type FileItem = {
   name: string;

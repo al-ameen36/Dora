@@ -5,6 +5,7 @@ import type { FileResponse } from "@/types";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { SearchArea } from "@/components/search";
 import z from "zod";
+import { EmptyState } from "#/components/empty-state";
 
 const productSearchSchema = z.object({
   path: z.string().optional(),
@@ -54,25 +55,28 @@ function App() {
         <Breadcrumbs currentPath={currentPath} />
       </nav>
 
-      <section className="mt-10">
-        <h2>Folders</h2>
-        <div className="mt-10 flex flex-wrap gap-4">
-          {folders.map((file, i) => (
-            <FolderGridItem
-              currentPath={currentPath}
-              file={file}
-              key={file.name + i + "-folder"}
-            />
-          ))}
-        </div>
-        <div>
+      {filesArr.length > 0 ? (
+        <section className="mt-10">
           <div className="mt-10 flex flex-wrap gap-4">
-            {files.map((file, i) => (
-              <FileGridItem file={file} key={file.name + i + "-file"} />
+            {folders.map((file, i) => (
+              <FolderGridItem
+                currentPath={currentPath}
+                file={file}
+                key={file.name + i + "-folder"}
+              />
             ))}
           </div>
-        </div>
-      </section>
+          <div>
+            <div className="mt-10 flex flex-wrap gap-4">
+              {files.map((file, i) => (
+                <FileGridItem file={file} key={file.name + i + "-file"} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : (
+        <EmptyState />
+      )}
     </main>
   );
 }
