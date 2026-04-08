@@ -81,3 +81,22 @@ export const getFileIcon = (name: string) => {
     fileTypeIcons[ext as keyof typeof fileTypeIcons] || fileTypeIcons.default
   );
 };
+
+export const getFileSize = (size: number) => {
+  const sizes = {
+    KB: 1000,
+    MB: 1000 * 1000,
+    GB: 1000 * 1000 * 1000,
+  };
+
+  if (size >= sizes.GB) {
+    return `${(size / sizes.GB).toFixed(2)} GB`;
+  }
+  if (size >= sizes.MB) {
+    return `${(size / sizes.MB).toFixed(2)} MB`;
+  }
+  if (size >= sizes.KB) {
+    return `${(size / sizes.KB).toFixed(2)} KB`;
+  }
+  return `${size} B`;
+};
