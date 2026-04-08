@@ -1,15 +1,16 @@
 import { FileGridItem } from "@/components/file";
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderGridItem } from "#/components/folder";
+import { FolderGridItem } from "@/components/folder";
 import type { FileResponse, FileSection } from "@/types";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { SearchArea } from "@/components/search";
 import z from "zod";
-import { EmptyState } from "#/components/empty-state";
+import { EmptyState } from "@/components/empty-state";
 import { useEffect, useState } from "react";
-import { Button } from "#/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Copy, Scissors, Trash } from "lucide-react";
-import { Checkbox } from "#/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
 const productSearchSchema = z.object({
   path: z.string().optional(),
@@ -50,6 +51,7 @@ function App() {
     folders: new Set(),
     files: new Set(),
   });
+  const [scrolled, setScrolled] = useState(false);
 
   const totalSelected = selected.folders.size + selected.files.size;
 
@@ -89,51 +91,74 @@ function App() {
     setSelected({ folders: new Set(), files: new Set() });
   }, [filesArr]);
 
+  useEffect(() => {
+    console.log(window.scrollY);
+
+    const handleScroll = () => {
+      if (window.scrollY > 10) setScrolled(true);
+      else setScrolled(false);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <main className="page-wrap px-4 pb-8 pt-14 text-sm">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dora</h1>
-        <div className="w-100">
-          <SearchArea />
-        </div>
-      </div>
-      <nav className="flex items-center justify-between">
-        <Breadcrumbs currentPath={currentPath} />
-      </nav>
-
-      <nav className="flex gap-4 mt-4 items-center">
-        {selected.files.size + selected.folders.size > 0 && (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                name="selectAll"
-                checked={totalSelected === filesArr.length}
-                onCheckedChange={handleToggleSelectAll}
-              />
-              <label htmlFor="selectAll" className="me-10">
-                Select all
-              </label>
-              <h1>{totalSelected} item(s) selected</h1>
-            </div>
-
-            <div className="flex gap-1">
-              <Button size="icon" className="bg-gray-600 text-white">
-                <Copy />
-              </Button>
-              <Button size="icon" className="bg-gray-600 text-white">
-                <Scissors />
-              </Button>
-              <Button className="bg-red-700 text-gray-100 ms-4" size="icon">
-                <Trash />
-              </Button>
-            </div>
-          </div>
+      <header
+        className={cn(
+          "sticky top-0 z-50 w-full transition-all duration-300 px-4",
+          scrolled
+            ? "bg-black/70 backdrop-blur-md border-b shadow-xs py-4"
+            : "bg-transparent border-b-transparent py-4",
         )}
-      </nav>
+      >
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Dora</h1>
+          <div className="w-100">
+            <SearchArea />
+          </div>
+        </div>
+
+        <nav className="flex items-center justify-between mt-4">
+          <Breadcrumbs currentPath={currentPath} />
+        </nav>
+
+        <nav className="flex gap-4 mt-4 items-center">
+          {selected.files.size + selected.folders.size > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  name="selectAll"
+                  checked={totalSelected === filesArr.length}
+                  onCheckedChange={handleToggleSelectAll}
+                />
+                <label htmlFor="selectAll" className="me-10">
+                  Select all
+                </label>
+                <h1>{totalSelected} item(s) selected</h1>
+              </div>
+
+              <div className="flex gap-1">
+                <Button size="icon" className="bg-gray-600 text-white">
+                  <Copy />
+                </Button>
+                <Button size="icon" className="bg-gray-600 text-white">
+                  <Scissors />
+                </Button>
+                <Button className="bg-red-700 text-gray-100 ms-4" size="icon">
+                  <Trash />
+                </Button>
+              </div>
+            </div>
+          )}
+        </nav>
+      </header>
 
       {filesArr.length > 0 ? (
         <section className="mt-10">
-          <div className="mt-10 flex flex-wrap gap-4">
+          <div className="mt-10 flex flex-wrap gap-4 justify-center">
             {folders.map((file, i) => (
               <FolderGridItem
                 currentPath={currentPath}

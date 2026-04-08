@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/context-menu";
 import { Copy, Pencil, Scissors, Trash } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
-import { getFileName } from "#/lib/helpers";
+import { getFileName } from "@/lib/helpers";
 
 type Props = {
   file: FileType;
