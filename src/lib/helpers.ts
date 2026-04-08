@@ -76,11 +76,11 @@ export const getFileExtension = (name: string) => {
 };
 
 export const getFileName = (name: string, isFolder: boolean = false) => {
-  const maxLength = isFolder ? 18 : 20;
-  const nameWithoutExtension = name.replace(`.${getFileExtension(name)}`, "");
+  const extension = getFileExtension(name);
+  const maxLength = isFolder ? 15 : extension ? 12 : 22;
+  const nameWithoutExtension = name.replace(`.${extension}`, "");
   const shortName = nameWithoutExtension.slice(0, maxLength);
   const separator = nameWithoutExtension.length > maxLength ? "..." : "";
-  const extension = getFileExtension(name);
 
   if (isFolder) return shortName + separator;
   return shortName + separator + (extension ? "." + extension : "");

@@ -6,7 +6,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { SearchArea } from "@/components/search";
 import z from "zod";
 import { EmptyState } from "#/components/empty-state";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Copy, Scissors, Trash } from "lucide-react";
 import { Checkbox } from "#/components/ui/checkbox";
@@ -85,6 +85,10 @@ function App() {
   const isChecked = (index: number, isFolder: boolean) =>
     isFolder ? selected.folders.has(index) : selected.files.has(index);
 
+  useEffect(() => {
+    setSelected({ folders: new Set(), files: new Set() });
+  }, [filesArr]);
+
   return (
     <main className="page-wrap px-4 pb-8 pt-14 text-sm">
       <div className="flex items-center justify-between">
@@ -102,10 +106,13 @@ function App() {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
               <Checkbox
+                name="selectAll"
                 checked={totalSelected === filesArr.length}
                 onCheckedChange={handleToggleSelectAll}
               />
-              <p className="me-10">select all</p>
+              <label htmlFor="selectAll" className="me-10">
+                Select all
+              </label>
               <h1>{totalSelected} item(s) selected</h1>
             </div>
 
