@@ -1,4 +1,4 @@
-import { getFileIcon, getFileSize } from "@/lib/helpers";
+import { getFileIcon, getFileName, getFileSize } from "@/lib/helpers";
 import {
   Tooltip,
   TooltipContent,
@@ -10,17 +10,11 @@ import { Checkbox } from "./ui/checkbox";
 
 type Props = {
   file: FileType;
-  currentPath: string;
   handleSelect: () => void;
   checked: boolean;
 };
 
-export function FileInlineItem({
-  file,
-  currentPath,
-  handleSelect,
-  checked,
-}: Props) {
+export function FileInlineItem({ file, handleSelect, checked }: Props) {
   const [src, setSrc] = useState(`${getFileIcon(file.name)}`);
 
   return (
@@ -50,20 +44,12 @@ export function FileInlineItem({
   );
 }
 
-export function FileGridItem({
-  file,
-  currentPath,
-  handleSelect,
-  checked,
-}: Props) {
+export function FileGridItem({ file, handleSelect, checked }: Props) {
   const [src, setSrc] = useState(`${getFileIcon(file.name)}`);
 
   return (
-    <button className="relative flex justify-between items-end w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm">
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="z-10 absolute top-2 left-2"
-      >
+    <article className="w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm">
+      <div onClick={(e) => e.stopPropagation()}>
         <Checkbox checked={checked} onCheckedChange={() => handleSelect()} />
       </div>
       <Tooltip>
@@ -76,8 +62,9 @@ export function FileGridItem({
               alt=""
               width={70}
             />
-
-            <p className="text-sm line-clamp-2 mt-2 h-[42px]">{file.name}</p>
+            <p className="mt-2 h-[42px] text-center">
+              {getFileName(file.name)}
+            </p>
             <p className="text-xs text-gray-500">{getFileSize(file.size)}</p>
           </div>
         </TooltipTrigger>
@@ -85,6 +72,6 @@ export function FileGridItem({
           <p>{file.name}</p>
         </TooltipContent>
       </Tooltip>
-    </button>
+    </article>
   );
 }

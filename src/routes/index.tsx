@@ -86,7 +86,7 @@ function App() {
     isFolder ? selected.folders.has(index) : selected.files.has(index);
 
   return (
-    <main className="page-wrap px-4 pb-8 pt-14">
+    <main className="page-wrap px-4 pb-8 pt-14 text-sm">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Dora</h1>
         <div className="w-100">
@@ -143,7 +143,6 @@ function App() {
             <div className="mt-10 flex flex-wrap gap-4">
               {files.map((file, i) => (
                 <FileGridItem
-                  currentPath={currentPath}
                   handleSelect={() => {
                     handleSelect(i, false);
                   }}

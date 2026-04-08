@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/context-menu";
 import { Copy, Pencil, Scissors, Trash } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
+import { getFileName } from "#/lib/helpers";
 
 type Props = {
   file: FileType;
@@ -38,14 +39,11 @@ export function FolderGridItem({
   };
 
   return (
-    <button
+    <article
       onClick={handleOpenFolder}
-      className="relative flex justify-between items-end w-[100px] h-[140px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
+      className="w-[100px] h-[160px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="z-10 absolute top-2 left-2"
-      >
+      <div onClick={(e) => e.stopPropagation()} className="">
         <Checkbox checked={checked} onCheckedChange={() => handleSelect()} />
       </div>
       <ContextMenu>
@@ -59,7 +57,7 @@ export function FolderGridItem({
                   alt=""
                   width={90}
                 />
-                <p className="text-sm line-clamp-2">{file.name}</p>
+                <p className="text-center">{getFileName(file.name, true)}</p>
               </div>
             </TooltipTrigger>
             <TooltipContent>
@@ -82,6 +80,6 @@ export function FolderGridItem({
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-    </button>
+    </article>
   );
 }

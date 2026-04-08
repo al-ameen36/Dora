@@ -70,9 +70,20 @@ export const fileTypeIcons = {
   default: "file.png",
 };
 
-const getFileExtension = (name: string) => {
+export const getFileExtension = (name: string) => {
   const parts = name.toLowerCase().split(".");
   return parts.length > 1 ? parts.pop() : "";
+};
+
+export const getFileName = (name: string, isFolder: boolean = false) => {
+  const maxLength = isFolder ? 18 : 20;
+  const nameWithoutExtension = name.replace(`.${getFileExtension(name)}`, "");
+  const shortName = nameWithoutExtension.slice(0, maxLength);
+  const separator = nameWithoutExtension.length > maxLength ? "..." : "";
+  const extension = getFileExtension(name);
+
+  if (isFolder) return shortName + separator;
+  return shortName + separator + (extension ? "." + extension : "");
 };
 
 export const getFileIcon = (name: string) => {
