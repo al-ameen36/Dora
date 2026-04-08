@@ -158,7 +158,7 @@ function App() {
 
       {filesArr.length > 0 ? (
         <section className="mt-10">
-          <div className="mt-10 flex flex-wrap gap-4 justify-center">
+          <div className="mt-10 flex flex-wrap gap-4">
             {folders.map((file, i) => (
               <FolderGridItem
                 currentPath={currentPath}

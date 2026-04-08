@@ -43,11 +43,14 @@ export function FolderGridItem({
       onClick={handleOpenFolder}
       className="w-[100px] h-[160px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
     >
-      <div onClick={(e) => e.stopPropagation()} className="">
-        <Checkbox checked={checked} onCheckedChange={() => handleSelect()} />
-      </div>
       <ContextMenu>
         <ContextMenuTrigger>
+          <div onClick={(e) => e.stopPropagation()} className="">
+            <Checkbox
+              checked={checked}
+              onCheckedChange={() => handleSelect()}
+            />
+          </div>
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="w-full">
