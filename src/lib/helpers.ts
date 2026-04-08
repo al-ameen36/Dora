@@ -35,30 +35,28 @@ export const fileTypeIcons = {
   webm: "video.png",
 
   // Archives
-  zip: "archive.png",
-  rar: "archive.png",
-  "7z": "archive.png",
-  tar: "archive.png",
-  gz: "archive.png",
+  zip: "zip.png",
+  rar: "zip.png",
+  "7z": "zip.png",
+  tar: "zip.png",
+  gz: "zip.png",
 
   // Code / Dev
-  js: "code.png",
-  ts: "code.png",
-  jsx: "react.png",
-  tsx: "react.png",
-  html: "html.png",
-  css: "css.png",
-  scss: "css.png",
-  json: "json.png",
-  xml: "xml.png",
-  yml: "yaml.png",
-  yaml: "yaml.png",
-  sh: "terminal.png",
+  js: "script.png",
+  ts: "script.png",
+  jsx: "script.png",
+  tsx: "script.png",
+  html: "script.png",
+  css: "script.png",
+  scss: "script.png",
+  json: "script.png",
+  xml: "script.png",
+  yml: "script.png",
+  yaml: "script.png",
+  sh: "cmd.png",
 
   // Executables
   exe: "exe.png",
-  apk: "apk.png",
-  app: "app.png",
 
   // Fonts
   ttf: "font.png",
