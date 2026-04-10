@@ -1,4 +1,4 @@
-import { File } from "lucide-react";
+import { Folder } from "lucide-react";
 import {
   Empty,
   EmptyHeader,
@@ -11,7 +11,7 @@ export function EmptyState() {
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon" className="bg-transparent border-2">
-          <File />
+          <Folder />
         </EmptyMedia>
         <EmptyTitle>Empty Folder</EmptyTitle>
       </EmptyHeader>

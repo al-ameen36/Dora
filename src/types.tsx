@@ -10,6 +10,6 @@ export type FileResponse = {
 };
 
 export type FileSection = {
-  folders: Set<number>;
-  files: Set<number>;
+  folders: string[];
+  files: string[];
 };

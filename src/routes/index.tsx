@@ -2,72 +2,77 @@ import { FileGridItem } from "@/components/file";
 import { createFileRoute } from "@tanstack/react-router";
 import { FolderGridItem } from "@/components/folder";
 import type { FileResponse, FileSection } from "@/types";
-import { Breadcrumbs } from "@/components/breadcrumbs";
-import { SearchArea } from "@/components/search";
 import z from "zod";
 import { EmptyState } from "@/components/empty-state";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Copy, Scissors, Trash } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
+import Header from "@/components/header";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const productSearchSchema = z.object({
   path: z.string().optional(),
 });
 
+const getFiles = async (path: string | undefined): Promise<FileResponse> => {
+  const query = new URLSearchParams();
+  if (path) query.set("path", path);
+
+  const url = `${import.meta.env.VITE_API_URL}/ls?${query.toString()}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch files: ${res.status} ${res.statusText}`);
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Loader error:", error);
+    return { files: [], currentPath: "/" };
+  }
+};
+
 export const Route = createFileRoute("/")({
   component: App,
   validateSearch: productSearchSchema,
   loaderDeps: ({ search: { path } }) => ({ path }),
-  loader: async ({ deps: { path } }): Promise<FileResponse> => {
-    const query = new URLSearchParams();
-    if (path) query.set("path", path);
-
-    const url = `${import.meta.env.VITE_API_URL}/ls?${query.toString()}`;
-
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch files: ${res.status} ${res.statusText}`,
-        );
-      }
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      console.error("Loader error:", error);
-      throw error;
-    }
-  },
+  loader: async ({ deps: { path } }) => getFiles(path),
 });
 
 function App() {
-  const { files: filesArr, currentPath } = Route.useLoaderData();
-  const folders = filesArr.filter((file) => file.isDirectory);
-  const files = filesArr.filter((file) => !file.isDirectory);
+  const { path } = Route.useSearch();
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["files", path],
+    queryFn: () => getFiles(path),
+  });
+
+  const allFileAndFolders = data?.files || [];
+  const folders = data?.files.filter((file) => file.isDirectory) || [];
+  const files = data?.files.filter((file) => !file.isDirectory) || [];
+  const currentPath = data?.currentPath || "";
 
   const [selected, setSelected] = useState<FileSection>({
-    folders: new Set(),
-    files: new Set(),
+    folders: [],
+    files: [],
   });
-  const [scrolled, setScrolled] = useState(false);
 
-  const totalSelected = selected.folders.size + selected.files.size;
+  const totalSelected = selected.folders.length + selected.files.length;
 
-  const handleSelect = (index: number, isFolder: boolean) => {
+  const handleSelect = (name: string, isFolder: boolean) => {
     setSelected((prev) => {
       const next = {
-        folders: new Set(prev.folders),
-        files: new Set(prev.files),
+        folders: [...prev.folders],
+        files: [...prev.files],
       };
 
       if (isFolder) {
-        if (next.folders.has(index)) next.folders.delete(index);
-        else next.folders.add(index);
+        if (next.folders.includes(name))
+          next.folders = next.folders.filter((f) => f !== name);
+        else next.folders.push(name);
       } else {
-        if (next.files.has(index)) next.files.delete(index);
-        else next.files.add(index);
+        if (next.files.includes(name))
+          next.files = next.files.filter((f) => f !== name);
+        else next.files.push(name);
       }
 
       return next;
@@ -75,97 +80,66 @@ function App() {
   };
 
   const handleToggleSelectAll = () => {
-    if (totalSelected == filesArr.length)
-      setSelected({ folders: new Set(), files: new Set() });
+    if (totalSelected == data?.files.length)
+      setSelected({ folders: [], files: [] });
     else
       setSelected({
-        folders: new Set(folders.map((_, i) => i)),
-        files: new Set(files.map((_, i) => i)),
+        folders: folders.map((f) => f.name),
+        files: files.map((f) => f.name),
       });
   };
 
-  const isChecked = (index: number, isFolder: boolean) =>
-    isFolder ? selected.folders.has(index) : selected.files.has(index);
+  const isChecked = (name: string, isFolder: boolean) =>
+    isFolder ? selected.folders.includes(name) : selected.files.includes(name);
+
+  // Normalize path to avoid resets on trailing slash changes
+  const normalizePath = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
 
   useEffect(() => {
-    setSelected({ folders: new Set(), files: new Set() });
-  }, [filesArr]);
-
-  useEffect(() => {
-    console.log(window.scrollY);
-
-    const handleScroll = () => {
-      if (window.scrollY > 10) setScrolled(true);
-      else setScrolled(false);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    setSelected({ folders: [], files: [] });
+  }, [normalizePath(currentPath)]);
 
   return (
     <main className="page-wrap px-4 pb-8 pt-14 text-sm">
-      <header
-        className={cn(
-          "sticky top-0 z-50 w-full transition-all duration-300 px-4",
-          scrolled
-            ? "bg-black/70 backdrop-blur-md border-b shadow-xs py-4"
-            : "bg-transparent border-b-transparent py-4",
-        )}
-      >
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Dora</h1>
-          <div className="w-100">
-            <SearchArea />
-          </div>
+      <Header
+        currentPath={currentPath}
+        selected={selected}
+        filesArr={allFileAndFolders}
+        files={files}
+        folders={folders}
+        handleToggleSelectAll={handleToggleSelectAll}
+        totalSelected={totalSelected}
+      />
+
+      {isError && <p>Error</p>}
+      {allFileAndFolders.length === 0 && !isLoading && <EmptyState />}
+      {isLoading && (
+        <div className="mt-10 flex flex-wrap gap-4">
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
+          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
         </div>
+      )}
 
-        <nav className="flex items-center justify-between mt-4">
-          <Breadcrumbs currentPath={currentPath} />
-        </nav>
-
-        <nav className="flex gap-4 mt-4 items-center">
-          {selected.files.size + selected.folders.size > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  name="selectAll"
-                  checked={totalSelected === filesArr.length}
-                  onCheckedChange={handleToggleSelectAll}
-                />
-                <label htmlFor="selectAll" className="me-10">
-                  Select all
-                </label>
-                <h1>{totalSelected} item(s) selected</h1>
-              </div>
-
-              <div className="flex gap-1">
-                <Button size="icon" className="bg-gray-600 text-white">
-                  <Copy />
-                </Button>
-                <Button size="icon" className="bg-gray-600 text-white">
-                  <Scissors />
-                </Button>
-                <Button className="bg-red-700 text-gray-100 ms-4" size="icon">
-                  <Trash />
-                </Button>
-              </div>
-            </div>
-          )}
-        </nav>
-      </header>
-
-      {filesArr.length > 0 ? (
+      {allFileAndFolders.length > 0 && (
         <section className="mt-10">
           <div className="mt-10 flex flex-wrap gap-4">
             {folders.map((file, i) => (
               <FolderGridItem
                 currentPath={currentPath}
                 handleSelect={() => {
-                  handleSelect(i, true);
+                  handleSelect(file.name, true);
                 }}
-                checked={isChecked(i, true)}
+                checked={isChecked(file.name, true)}
                 file={file}
                 key={file.name + i + "-folder"}
               />
@@ -176,9 +150,9 @@ function App() {
               {files.map((file, i) => (
                 <FileGridItem
                   handleSelect={() => {
-                    handleSelect(i, false);
+                    handleSelect(file.name, false);
                   }}
-                  checked={isChecked(i, false)}
+                  checked={isChecked(file.name, false)}
                   file={file}
                   key={file.name + i + "-file"}
                 />
@@ -186,8 +160,6 @@ function App() {
             </div>
           </div>
         </section>
-      ) : (
-        <EmptyState />
       )}
     </main>
   );

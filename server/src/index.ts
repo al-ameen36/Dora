@@ -1,55 +1,13 @@
 import express from "express";
 import cors from "cors";
-import { readdir, stat } from "node:fs/promises";
-import path from "path";
-import os from "os";
+import os from "node:os";
+import { lsDir } from "./functions/file-ops.js";
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 const PORT = Number(process.env.PORT) || 3001;
 const ROOT_DIR = os.homedir();
-
-type FileItem = {
-  name: string;
-  isDirectory: boolean;
-  size: number;
-};
-
-const lsDir = async (dirPath: string): Promise<FileItem[]> => {
-  const list: FileItem[] = [];
-
-  try {
-    const files = await readdir(dirPath, { withFileTypes: true });
-
-    for (const file of files) {
-      if (file.name.startsWith(".")) continue;
-
-      const fullPath = path.join(dirPath, file.name);
-
-      let size = 0;
-
-      // Only files need size (folders are tricky/expensive)
-      if (file.isFile()) {
-        try {
-          const stats = await stat(fullPath);
-          size = stats.size;
-        } catch (err) {
-          console.error("stat error:", err);
-        }
-      }
-
-      list.push({
-        name: file.name,
-        isDirectory: file.isDirectory(),
-        size,
-      });
-    }
-  } catch (err) {
-    console.error(err);
-  }
-
-  return list;
-};
 
 app.get("/ls", async (req, res) => {
   let path = req.query.path as string;
@@ -59,6 +17,14 @@ app.get("/ls", async (req, res) => {
 
   const files = await lsDir(path);
   res.json({ files, currentPath: path });
+});
+
+app.post("/copy", async (req, res) => {
+  const { from, to, files, folders } = req.body;
+
+  console.log(from, to, files, folders);
+
+  res.json({ success: true });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
