@@ -6,8 +6,8 @@ import { Button } from "./ui/button";
 import { Clipboard, Copy, Scissors, Trash } from "lucide-react";
 import type { FileSection, FileType } from "@/types";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { copyFile } from "@/functions/file-ops";
+import { useMutation } from "@tanstack/react-query";
 
 type Props = {
   selected: FileSection;
@@ -26,7 +26,6 @@ export default function Header({
   currentPath,
   handleToggleSelectAll,
 }: Props) {
-  const copyFiles = useServerFn(copyFile);
   const [scrolled, setScrolled] = useState(false);
   const [copied, setCopied] = useState<{
     folders: string[];
@@ -36,6 +35,10 @@ export default function Header({
     folders: [],
     files: [],
     from: "",
+  });
+
+  const copyFiles = useMutation({
+    mutationFn: copyFile,
   });
 
   const handleCopy = async () => {
@@ -48,7 +51,7 @@ export default function Header({
 
   const handlePaste = async () => {
     try {
-      await copyFiles({
+      copyFiles.mutate({
         data: {
           from: copied.from,
           to: currentPath,

@@ -1,3 +1,4 @@
+import type { FileResponse } from "@/types";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 
@@ -24,4 +25,31 @@ export const copyFile = createServerFn({ method: "POST" })
     }
 
     return await res.json();
+  });
+
+export const getFiles = createServerFn()
+  .inputValidator(
+    z.object({
+      path: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data: { path } }): Promise<FileResponse> => {
+    const query = new URLSearchParams();
+    if (path) query.set("path", path);
+
+    const url = `${import.meta.env.VITE_API_URL}/ls?${query.toString()}`;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(
+          `Failed to fetch files: ${res.status} ${res.statusText}`,
+        );
+      }
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error("Loader error:", error);
+      return { files: [], currentPath: "/" };
+    }
   });

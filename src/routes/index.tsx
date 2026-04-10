@@ -1,49 +1,31 @@
 import { FileGridItem } from "@/components/file";
 import { createFileRoute } from "@tanstack/react-router";
 import { FolderGridItem } from "@/components/folder";
-import type { FileResponse, FileSection } from "@/types";
+import type { FileSection } from "@/types";
 import z from "zod";
 import { EmptyState } from "@/components/empty-state";
 import { useEffect, useState } from "react";
 import Header from "@/components/header";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getFiles } from "@/functions/file-ops";
 
 const productSearchSchema = z.object({
   path: z.string().optional(),
 });
 
-const getFiles = async (path: string | undefined): Promise<FileResponse> => {
-  const query = new URLSearchParams();
-  if (path) query.set("path", path);
-
-  const url = `${import.meta.env.VITE_API_URL}/ls?${query.toString()}`;
-
-  try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch files: ${res.status} ${res.statusText}`);
-    }
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error("Loader error:", error);
-    return { files: [], currentPath: "/" };
-  }
-};
-
 export const Route = createFileRoute("/")({
   component: App,
   validateSearch: productSearchSchema,
   loaderDeps: ({ search: { path } }) => ({ path }),
-  loader: async ({ deps: { path } }) => getFiles(path),
+  loader: async ({ deps: { path } }) => getFiles({ data: { path } }),
 });
 
 function App() {
   const { path } = Route.useSearch();
   const { data, isLoading, isError } = useQuery({
     queryKey: ["files", path],
-    queryFn: () => getFiles(path),
+    queryFn: () => getFiles({ data: { path } }),
   });
 
   const allFileAndFolders = data?.files || [];
