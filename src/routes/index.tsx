@@ -9,6 +9,7 @@ import Header from "@/components/header";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFiles } from "@/functions/file-ops";
+import SkeletonFiles from "@/components/skeleton-files";
 
 const productSearchSchema = z.object({
   path: z.string().optional(),
@@ -95,22 +96,7 @@ function App() {
 
       {isError && <p>Error</p>}
       {allFileAndFolders.length === 0 && !isLoading && <EmptyState />}
-      {isLoading && (
-        <div className="mt-10 flex flex-wrap gap-4">
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-          <Skeleton className="w-[100px] h-[160px] bg-gray-200/20 border" />
-        </div>
-      )}
+      {isLoading && <SkeletonFiles />}
 
       {allFileAndFolders.length > 0 && (
         <section className="mt-10">
