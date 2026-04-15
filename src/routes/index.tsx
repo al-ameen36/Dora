@@ -7,7 +7,6 @@ import { EmptyState } from "@/components/empty-state";
 import { useEffect, useState } from "react";
 import Header from "@/components/header";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getFiles } from "@/functions/file-ops";
 import SkeletonFiles from "@/components/skeleton-files";
 
@@ -25,7 +24,7 @@ export const Route = createFileRoute("/")({
 function App() {
   const { path } = Route.useSearch();
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["files", path],
+    queryKey: ["ls", path],
     queryFn: () => getFiles({ data: { path } }),
   });
 
@@ -105,9 +104,9 @@ function App() {
               <FolderGridItem
                 currentPath={currentPath}
                 handleSelect={() => {
-                  handleSelect(file.name, true);
+                  handleSelect(file.fullPath, true);
                 }}
-                checked={isChecked(file.name, true)}
+                checked={isChecked(file.fullPath, true)}
                 file={file}
                 key={file.name + i + "-folder"}
               />
@@ -118,9 +117,9 @@ function App() {
               {files.map((file, i) => (
                 <FileGridItem
                   handleSelect={() => {
-                    handleSelect(file.name, false);
+                    handleSelect(file.fullPath, false);
                   }}
-                  checked={isChecked(file.name, false)}
+                  checked={isChecked(file.fullPath, false)}
                   file={file}
                   key={file.name + i + "-file"}
                 />

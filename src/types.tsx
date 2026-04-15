@@ -1,5 +1,6 @@
 export type FileType = {
   name: string;
+  fullPath: string;
   isDirectory: boolean;
   size: number;
 };

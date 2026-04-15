@@ -7,7 +7,7 @@ import { Clipboard, Copy, Scissors, Trash } from "lucide-react";
 import type { FileSection, FileType } from "@/types";
 import { useEffect, useState } from "react";
 import { copyFile } from "@/functions/file-ops";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   selected: FileSection;
@@ -26,6 +26,7 @@ export default function Header({
   currentPath,
   handleToggleSelectAll,
 }: Props) {
+  const queryClient = useQueryClient();
   const [scrolled, setScrolled] = useState(false);
   const [copied, setCopied] = useState<{
     folders: string[];
@@ -39,6 +40,9 @@ export default function Header({
 
   const copyFiles = useMutation({
     mutationFn: copyFile,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["ls"] });
+    },
   });
 
   const handleCopy = async () => {
@@ -61,8 +65,6 @@ export default function Header({
       });
 
       setCopied({ folders: [], files: [], from: "" });
-      console.log(123);
-      console.log(copied);
     } catch (error) {
       console.error(error);
       throw error;
