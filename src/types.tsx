@@ -14,3 +14,5 @@ export type FileSection = {
   folders: string[];
   files: string[];
 };
+
+export type Action = "COPY" | "MOVE" | "PASTE" | "NONE";

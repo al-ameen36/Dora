@@ -14,6 +14,7 @@ import {
 import { Copy, LucideLoader2, Pencil, Scissors, Trash } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
 import { getFileName, getFileNameFromPath } from "@/lib/helpers";
+import PendingFile from "./pending-file";
 
 type Props = {
   file: FileType;
@@ -44,14 +45,11 @@ export function FolderGridItem({
       className="w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
     >
       {file.size === -1 ? (
-        <div className="absolute top-0 left-0 bg-black/20 w-full h-full grid place-items-center">
-          <LucideLoader2 className="animate-spin" />
-          <p>{getFileNameFromPath(file.name)}</p>
-        </div>
+        <PendingFile name={getFileNameFromPath(file.name)} />
       ) : (
         <ContextMenu>
           <ContextMenuTrigger>
-            <div onClick={(e) => e.stopPropagation()} className="">
+            <div onClick={(e) => e.stopPropagation()}>
               <Checkbox
                 checked={checked}
                 onCheckedChange={() => handleSelect()}

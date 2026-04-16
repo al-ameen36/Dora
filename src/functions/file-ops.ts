@@ -52,6 +52,29 @@ export const copyFile = createServerFn({ method: "POST" })
     return await res.json();
   });
 
+const moveFilesSchema = z.object({
+  to: z.string(),
+  files: z.array(z.string()),
+});
+
+export const moveFile = createServerFn({ method: "POST" })
+  .inputValidator(moveFilesSchema)
+  .handler(async ({ data }) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/move`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...data }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to move file: ${res.status} ${res.statusText}`);
+    }
+
+    return await res.json();
+  });
+
 const deleteFileSchema = z.object({
   files: z.array(z.string()),
 });

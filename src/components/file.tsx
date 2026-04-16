@@ -13,6 +13,7 @@ import type { FileType } from "@/types";
 import { useState } from "react";
 import { Checkbox } from "./ui/checkbox";
 import { LucideLoader2 } from "lucide-react";
+import PendingFile from "./pending-file";
 
 type Props = {
   file: FileType;
@@ -60,10 +61,7 @@ export function FileGridItem({ file, handleSelect, checked }: Props) {
       }
     >
       {file.size === -1 ? (
-        <div className="absolute top-0 left-0 bg-black/20 w-full h-full grid place-items-center">
-          <LucideLoader2 className="animate-spin" />
-          <p>{getFileNameFromPath(file.name)}</p>
-        </div>
+        <PendingFile name={getFileNameFromPath(file.name)} />
       ) : (
         <>
           <div onClick={(e) => e.stopPropagation()}>
