@@ -41,7 +41,7 @@ export function FolderGridItem({
   return (
     <article
       onClick={handleOpenFolder}
-      className="w-[100px] h-[160px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
+      className="w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
     >
       {file.size === -1 ? (
         <div className="absolute top-0 left-0 bg-black/20 w-full h-full grid place-items-center">

@@ -111,20 +111,16 @@ function App() {
                 key={file.name + i + "-folder"}
               />
             ))}
-          </div>
-          <div>
-            <div className="mt-10 flex flex-wrap gap-4">
-              {files.map((file, i) => (
-                <FileGridItem
-                  handleSelect={() => {
-                    handleSelect(file.fullPath, false);
-                  }}
-                  checked={isChecked(file.fullPath, false)}
-                  file={file}
-                  key={file.name + i + "-file"}
-                />
-              ))}
-            </div>
+            {files.map((file, i) => (
+              <FileGridItem
+                handleSelect={() => {
+                  handleSelect(file.fullPath, false);
+                }}
+                checked={isChecked(file.fullPath, false)}
+                file={file}
+                key={file.name + i + "-file"}
+              />
+            ))}
           </div>
         </section>
       )}
