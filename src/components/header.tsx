@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Clipboard, Copy, Scissors, Trash } from "lucide-react";
 import type { FileSection, FileType } from "@/types";
 import { useEffect, useState } from "react";
-import { copyFile } from "@/functions/file-ops";
+import { copyFile, deleteFile } from "@/functions/file-ops";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
@@ -28,7 +28,7 @@ export default function Header({
 }: Props) {
   const queryClient = useQueryClient();
   const [scrolled, setScrolled] = useState(false);
-  const [copied, setCopied] = useState<{
+  const [localSelected, setLocalSelected] = useState<{
     folders: string[];
     files: string[];
     from: string;
@@ -45,8 +45,15 @@ export default function Header({
     },
   });
 
+  const deleteFiles = useMutation({
+    mutationFn: deleteFile,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["ls"] });
+    },
+  });
+
   const handleCopy = async () => {
-    setCopied({
+    setLocalSelected({
       folders: [...selected.folders],
       files: [...selected.files],
       from: currentPath,
@@ -57,14 +64,27 @@ export default function Header({
     try {
       copyFiles.mutate({
         data: {
-          from: copied.from,
           to: currentPath,
-          files: copied.files,
-          folders: copied.folders,
+          files: localSelected.files.concat(localSelected.folders),
         },
       });
 
-      setCopied({ folders: [], files: [], from: "" });
+      setLocalSelected({ folders: [], files: [], from: "" });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      deleteFiles.mutate({
+        data: {
+          files: selected.files.concat(selected.folders),
+        },
+      });
+
+      setLocalSelected({ folders: [], files: [], from: "" });
     } catch (error) {
       console.error(error);
       throw error;
@@ -135,13 +155,16 @@ export default function Header({
               size="icon"
               className="bg-gray-600 text-white"
               onClick={handlePaste}
-              disabled={copied.files.length + copied.folders.length === 0}
+              disabled={
+                localSelected.files.length + localSelected.folders.length === 0
+              }
             >
               <Clipboard />
             </Button>
             <Button
               className="bg-red-700 text-gray-100 ms-4"
               size="icon"
+              onClick={handleDelete}
               disabled={totalSelected === 0}
             >
               <Trash />

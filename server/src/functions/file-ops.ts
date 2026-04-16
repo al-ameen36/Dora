@@ -1,4 +1,4 @@
-import { readdir, stat, cp } from "node:fs/promises";
+import { readdir, stat, cp, rm } from "node:fs/promises";
 import { FileItem } from "../types.js";
 import path from "node:path";
 
@@ -39,8 +39,9 @@ export const lsDir = async (dirPath: string): Promise<FileItem[]> => {
   return list;
 };
 
-type FilesToCopy = {
-  files: string[];
+type Files = { files: string[] };
+
+type FilesToCopy = Files & {
   to: string;
 };
 
@@ -50,5 +51,13 @@ export const copyFiles = async ({ files, to }: FilesToCopy) => {
   for (let filePath of files) {
     const destinationPath = path.join(to, path.basename(filePath));
     await cp(filePath, destinationPath, { recursive: true });
+  }
+};
+
+export const deleteFiles = async ({ files }: Files) => {
+  if (files.length === 0) return;
+
+  for (let filePath of files) {
+    await rm(filePath, { recursive: true });
   }
 };

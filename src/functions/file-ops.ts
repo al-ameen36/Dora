@@ -2,31 +2,6 @@ import type { FileResponse } from "@/types";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 
-const copyFileSchema = z.object({
-  from: z.string(),
-  to: z.string(),
-  files: z.array(z.string()),
-  folders: z.array(z.string()),
-});
-
-export const copyFile = createServerFn({ method: "POST" })
-  .inputValidator(copyFileSchema)
-  .handler(async ({ data }) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/copy`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...data }),
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to copy file: ${res.status} ${res.statusText}`);
-    }
-
-    return await res.json();
-  });
-
 export const getFiles = createServerFn()
   .inputValidator(
     z.object({
@@ -52,4 +27,49 @@ export const getFiles = createServerFn()
       console.error("Loader error:", error);
       return { files: [], currentPath: "/" };
     }
+  });
+
+const copyFilesSchema = z.object({
+  to: z.string(),
+  files: z.array(z.string()),
+});
+
+export const copyFile = createServerFn({ method: "POST" })
+  .inputValidator(copyFilesSchema)
+  .handler(async ({ data }) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/copy`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...data }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to copy file: ${res.status} ${res.statusText}`);
+    }
+
+    return await res.json();
+  });
+
+const deleteFileSchema = z.object({
+  files: z.array(z.string()),
+});
+
+export const deleteFile = createServerFn({ method: "POST" })
+  .inputValidator(deleteFileSchema)
+  .handler(async ({ data }) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...data }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to delete file: ${res.status} ${res.statusText}`);
+    }
+
+    return await res.json();
   });

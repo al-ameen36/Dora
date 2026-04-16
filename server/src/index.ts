@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import os from "node:os";
-import { copyFiles, lsDir } from "./functions/file-ops.js";
+import { copyFiles, deleteFiles, lsDir } from "./functions/file-ops.js";
 
 const app = express();
 app.use(cors());
@@ -23,6 +23,14 @@ app.post("/copy", async (req, res) => {
   const { to, files } = req.body;
 
   await copyFiles({ files, to });
+
+  res.json({ success: true });
+});
+
+app.delete("/delete", async (req, res) => {
+  const { files } = req.body;
+
+  await deleteFiles({ files });
 
   res.json({ success: true });
 });
