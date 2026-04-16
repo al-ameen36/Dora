@@ -84,6 +84,15 @@ export const getFileName = (name: string, isFolder: boolean = false) => {
   return shortName + separator + (extension ? "." + extension : "");
 };
 
+export const getFileNameFromPath = (
+  name: string,
+  isFolder: boolean = false,
+) => {
+  const nameParts = name.split("/");
+  const namePart = nameParts[nameParts.length - 1];
+  return getFileName(namePart, isFolder);
+};
+
 export const getFileIcon = (name: string) => {
   const ext = getFileExtension(name);
   return (

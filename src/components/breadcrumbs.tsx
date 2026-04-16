@@ -19,10 +19,16 @@ export function Breadcrumbs({ currentPath }: { currentPath: string }) {
           <React.Fragment key={path + i + "item"}>
             <BreadcrumbItem>
               {i == 0 || i == paths.length - 1 ? (
-                <BreadcrumbPage>{path}</BreadcrumbPage>
+                <BreadcrumbPage className="truncate max-w-[10ch]">
+                  {path}
+                </BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link to="/" search={{ path: getURLSegment(paths, i) }}>
+                  <Link
+                    to="/"
+                    search={{ path: getURLSegment(paths, i) }}
+                    className="truncate max-w-[10ch]"
+                  >
                     {path}
                   </Link>
                 </BreadcrumbLink>

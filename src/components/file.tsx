@@ -1,4 +1,9 @@
-import { getFileIcon, getFileName, getFileSize } from "@/lib/helpers";
+import {
+  getFileIcon,
+  getFileName,
+  getFileNameFromPath,
+  getFileSize,
+} from "@/lib/helpers";
 import {
   Tooltip,
   TooltipContent,
@@ -7,6 +12,7 @@ import {
 import type { FileType } from "@/types";
 import { useState } from "react";
 import { Checkbox } from "./ui/checkbox";
+import { LucideLoader2 } from "lucide-react";
 
 type Props = {
   file: FileType;
@@ -48,30 +54,48 @@ export function FileGridItem({ file, handleSelect, checked }: Props) {
   const [src, setSrc] = useState(`${getFileIcon(file.name)}`);
 
   return (
-    <article className="w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm">
-      <div onClick={(e) => e.stopPropagation()}>
-        <Checkbox checked={checked} onCheckedChange={() => handleSelect()} />
-      </div>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="w-full">
-            <img
-              onError={() => setSrc("file.png")}
-              className="mx-auto"
-              src={`/icons/${src}`}
-              alt=""
-              width={70}
+    <article
+      className={
+        "w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm relative"
+      }
+    >
+      {file.size === -1 ? (
+        <div className="absolute top-0 left-0 bg-black/20 w-full h-full grid place-items-center">
+          <LucideLoader2 className="animate-spin" />
+          <p>{getFileNameFromPath(file.name)}</p>
+        </div>
+      ) : (
+        <>
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={checked}
+              onCheckedChange={() => handleSelect()}
             />
-            <p className="mt-2 h-[42px] text-center">
-              {getFileName(file.name)}
-            </p>
-            <p className="text-xs text-gray-500">{getFileSize(file.size)}</p>
           </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{file.name}</p>
-        </TooltipContent>
-      </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="w-full">
+                <img
+                  onError={() => setSrc("file.png")}
+                  className="mx-auto"
+                  src={`/icons/${src}`}
+                  alt=""
+                  width={70}
+                />
+                <p className="mt-2 h-[42px] text-center">
+                  {getFileName(file.name)}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {getFileSize(file.size)}
+                </p>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{file.name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </>
+      )}
     </article>
   );
 }

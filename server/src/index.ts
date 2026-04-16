@@ -9,6 +9,11 @@ app.use(express.json());
 const PORT = Number(process.env.PORT) || 3001;
 const ROOT_DIR = os.homedir();
 
+// Temp sleep function
+function sleep(s: number) {
+  return new Promise((resolve) => setTimeout(resolve, s * 1000));
+}
+
 app.get("/ls", async (req, res) => {
   let path = req.query.path as string;
   if (!path) path = ROOT_DIR;
@@ -22,6 +27,7 @@ app.get("/ls", async (req, res) => {
 app.post("/copy", async (req, res) => {
   const { to, files } = req.body;
 
+  await sleep(6);
   await copyFiles({ files, to });
 
   res.json({ success: true });

@@ -4,7 +4,7 @@ import { Breadcrumbs } from "./breadcrumbs";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
 import { Clipboard, Copy, Scissors, Trash } from "lucide-react";
-import type { FileSection, FileType } from "@/types";
+import type { FileResponse, FileSection, FileType } from "@/types";
 import { useEffect, useState } from "react";
 import { copyFile, deleteFile } from "@/functions/file-ops";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -40,7 +40,37 @@ export default function Header({
 
   const copyFiles = useMutation({
     mutationFn: copyFile,
-    onSuccess: async () => {
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ["ls"] });
+
+      const oldSnapShot = queryClient.getQueriesData<FileResponse>({ queryKey: ["ls"] });
+
+      queryClient.setQueriesData<FileResponse>({ queryKey: ["ls"] }, (prev) => {
+        if (!prev) return undefined;
+
+        const newFiles = variables.data.files.map<FileType>((f) => ({
+          name: f,
+          fullPath: `${variables.data.to}/${f}`,
+          isDirectory: false, // Fallback, will fix on refetch
+          size: -1,
+        }));
+
+        return {
+          ...prev,
+          files: [...prev.files, ...newFiles],
+        };
+      });
+
+      return { oldSnapShot };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.oldSnapShot) {
+        context.oldSnapShot.forEach(([queryKey, oldData]) => {
+          queryClient.setQueryData(queryKey, oldData);
+        });
+      }
+    },
+    onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ["ls"] });
     },
   });

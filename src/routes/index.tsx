@@ -10,13 +10,13 @@ import { useQuery } from "@tanstack/react-query";
 import { getFiles } from "@/functions/file-ops";
 import SkeletonFiles from "@/components/skeleton-files";
 
-const productSearchSchema = z.object({
+const searchSchema = z.object({
   path: z.string().optional(),
 });
 
 export const Route = createFileRoute("/")({
   component: App,
-  validateSearch: productSearchSchema,
+  validateSearch: searchSchema,
   loaderDeps: ({ search: { path } }) => ({ path }),
   loader: async ({ deps: { path } }) => getFiles({ data: { path } }),
 });
