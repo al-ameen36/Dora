@@ -1,6 +1,7 @@
 import { readdir, stat, cp, rm } from "node:fs/promises";
 import { FileItem } from "../types.js";
 import path from "node:path";
+import trash from "trash";
 
 export const lsDir = async (dirPath: string): Promise<FileItem[]> => {
   const list: FileItem[] = [];
@@ -57,7 +58,5 @@ export const copyFiles = async ({ files, to }: FilesToCopy) => {
 export const deleteFiles = async ({ files }: Files) => {
   if (files.length === 0) return;
 
-  for (let filePath of files) {
-    await rm(filePath, { recursive: true });
-  }
+  await trash(files);
 };
