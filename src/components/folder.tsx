@@ -11,7 +11,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Copy, LucideLoader2, Pencil, Scissors, Trash } from "lucide-react";
+import { Copy, Pencil, Scissors, Trash } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
 import { getFileName, getFileNameFromPath } from "@/lib/helpers";
 import PendingFile from "./pending-file";

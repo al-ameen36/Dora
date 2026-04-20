@@ -12,7 +12,6 @@ import {
 import type { FileType } from "@/types";
 import { useState } from "react";
 import { Checkbox } from "./ui/checkbox";
-import { LucideLoader2 } from "lucide-react";
 import PendingFile from "./pending-file";
 
 type Props = {
