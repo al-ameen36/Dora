@@ -4,10 +4,8 @@ import { Breadcrumbs } from "./breadcrumbs";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
 import { Clipboard, Copy, Scissors, Trash } from "lucide-react";
-import type { Action, FileResponse, FileType } from "@/types";
+import type { Action, FileType } from "@/types";
 import { useEffect, useState } from "react";
-import { copyFile, deleteFile, getFiles, moveFile } from "@/functions/file-ops";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import {
   currentPathAtom,
@@ -15,107 +13,20 @@ import {
   totalSelectedAtom,
 } from "@/store/atoms/files";
 import { useFileActions } from "@/hooks/file-actions";
+import { useFilesAPI } from "@/store/api/files";
 
 export default function Header() {
-  const queryClient = useQueryClient();
   const selectedItems = useAtomValue(selectedItemsAtom);
   const totalSelectedItems = useAtomValue(totalSelectedAtom);
   const [scrolled, setScrolled] = useState(false);
   const [action, setAction] = useState<Action>("NONE");
   const [committedSelection, setCommitedSelection] = useState<FileType[]>([]);
   const currentPath = useAtomValue(currentPathAtom);
-  const { data } = useQuery({
-    queryKey: ["ls", currentPath],
-    queryFn: () => getFiles({ data: { path: currentPath } }),
-  });
+
+  const { data, copyFiles, moveFiles, deleteFiles } = useFilesAPI();
   const totalCount = data?.files.length;
   const { handleResetSelection, handleToggleSelectAll, normalizePath } =
     useFileActions();
-
-  const copyFiles = useMutation({
-    mutationFn: copyFile,
-    onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: ["ls"] });
-
-      const oldSnapShot = queryClient.getQueriesData<FileResponse>({
-        queryKey: ["ls"],
-      });
-
-      queryClient.setQueriesData<FileResponse>({ queryKey: ["ls"] }, (prev) => {
-        if (!prev) return undefined;
-
-        const newFiles = variables.data.files.map<FileType>((f) => ({
-          name: f.name,
-          fullPath: `${variables.data.to}/${f.name}`,
-          isDirectory: false, // Fallback, will fix on refetch
-          size: -1,
-        }));
-
-        return {
-          ...prev,
-          files: [...prev.files, ...newFiles],
-        };
-      });
-
-      return { oldSnapShot };
-    },
-    onError: (_err, _variables, context) => {
-      if (context?.oldSnapShot) {
-        context.oldSnapShot.forEach(([queryKey, oldData]) => {
-          queryClient.setQueryData(queryKey, oldData);
-        });
-      }
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["ls"] });
-    },
-  });
-
-  const moveFiles = useMutation({
-    mutationFn: moveFile,
-    onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: ["ls"] });
-
-      const oldSnapShot = queryClient.getQueriesData<FileResponse>({
-        queryKey: ["ls"],
-      });
-
-      queryClient.setQueriesData<FileResponse>({ queryKey: ["ls"] }, (prev) => {
-        if (!prev) return undefined;
-
-        const newFiles = variables.data.files.map<FileType>((f) => ({
-          name: f.name,
-          fullPath: `${variables.data.to}/${f.name}`,
-          isDirectory: false, // Fallback, will fix on refetch
-          size: -1,
-        }));
-
-        return {
-          ...prev,
-          files: [...prev.files, ...newFiles],
-        };
-      });
-
-      return { oldSnapShot };
-    },
-    onError: (_err, _variables, context) => {
-      if (context?.oldSnapShot) {
-        context.oldSnapShot.forEach(([queryKey, oldData]) => {
-          queryClient.setQueryData(queryKey, oldData);
-        });
-      }
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["ls"] });
-    },
-  });
-
-  const deleteFiles = useMutation({
-    mutationFn: deleteFile,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["ls"] });
-    },
-  });
 
   const handleSetupAction = async (action: Action) => {
     setCommitedSelection([...selectedItems]);
@@ -140,6 +51,7 @@ export default function Header() {
         });
 
       handleResetSelection();
+      setCommitedSelection([]);
     } catch (error) {
       console.error(error);
       throw error;
@@ -155,6 +67,7 @@ export default function Header() {
       });
 
       handleResetSelection();
+      setCommitedSelection([]);
     } catch (error) {
       console.error(error);
       throw error;
@@ -201,7 +114,7 @@ export default function Header() {
           <div className="flex items-center gap-2">
             <Checkbox
               name="selectAll"
-              checked={totalSelectedItems === selectedItems.length}
+              checked={totalSelectedItems === data?.files.length}
               onCheckedChange={handleToggleSelectAll}
             />
             <label htmlFor="selectAll" className="me-10">

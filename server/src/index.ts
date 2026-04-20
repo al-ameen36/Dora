@@ -40,7 +40,7 @@ app.post("/copy", async (req, res) => {
   await sleep(6);
   await copyFiles({ files: files.map((f) => f.fullPath), to });
 
-  res.json({ success: true });
+  res.json({ success: true, currentPath: to });
 });
 
 app.post("/move", async (req, res) => {
@@ -49,15 +49,15 @@ app.post("/move", async (req, res) => {
   await sleep(6);
   await moveFiles({ files: files.map((f) => f.fullPath), to });
 
-  res.json({ success: true });
+  res.json({ success: true, currentPath: to });
 });
 
 app.delete("/delete", async (req, res) => {
-  const { files }: DeleteActionPayload = req.body;
+  const { files, currentPath }: DeleteActionPayload = req.body;
 
   await deleteFiles({ files: files.map((f) => f.fullPath) });
 
-  res.json({ success: true });
+  res.json({ success: true, currentPath });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
