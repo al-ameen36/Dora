@@ -4,7 +4,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { FileType } from "@/types";
-import { useNavigate } from "@tanstack/react-router";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -13,35 +12,30 @@ import {
 } from "@/components/ui/context-menu";
 import { Copy, Pencil, Scissors, Trash } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
-import { getFileName, getFileNameFromPath } from "@/lib/helpers";
+import {
+  getFileIcon,
+  getFileName,
+  getFileNameFromPath,
+  getFileSize,
+} from "@/lib/helpers";
 import PendingFile from "./pending-file";
+import { useFileActions } from "@/hooks/file-actions";
+import { useState } from "react";
 
 type Props = {
   file: FileType;
-  currentPath: string;
-  handleSelect: () => void;
-  checked: boolean;
 };
 
-export function FolderGridItem({
-  file,
-  currentPath,
-  handleSelect,
-  checked,
-}: Props) {
-  const navigate = useNavigate({ from: "/" });
-  const newPath = [currentPath, file.name].join("/");
-  const safePath = encodeURIComponent(newPath);
+export function GridItem({ file }: Props) {
+  const { handleSelect, isChecked, handleOpenFolder } = useFileActions();
 
-  const handleOpenFolder = () => {
-    navigate({
-      search: (prev) => ({ ...prev, path: safePath }),
-    });
-  };
+  const handleOpen = file.isDirectory
+    ? () => handleOpenFolder(file.fullPath)
+    : () => {};
 
   return (
     <article
-      onClick={handleOpenFolder}
+      onClick={handleOpen}
       className="w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
     >
       {file.size === -1 ? (
@@ -51,21 +45,17 @@ export function FolderGridItem({
           <ContextMenuTrigger>
             <div onClick={(e) => e.stopPropagation()}>
               <Checkbox
-                checked={checked}
-                onCheckedChange={() => handleSelect()}
+                checked={isChecked(file)}
+                onCheckedChange={() => handleSelect(file)}
               />
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="w-full">
-                  <img
-                    className="mx-auto"
-                    src="/icons/folder.png"
-                    alt=""
-                    width={90}
-                  />
-                  <p className="text-center">{getFileName(file.name, true)}</p>
-                </div>
+                {file.isDirectory ? (
+                  <Folder file={file} />
+                ) : (
+                  <File file={file} />
+                )}
               </TooltipTrigger>
               <TooltipContent>
                 <p>{file.name}</p>
@@ -89,5 +79,37 @@ export function FolderGridItem({
         </ContextMenu>
       )}
     </article>
+  );
+}
+
+type ItemProps = {
+  file: FileType;
+};
+
+// FOLDERS
+function Folder({ file }: ItemProps) {
+  return (
+    <div className="w-full">
+      <img className="mx-auto" src="/icons/folder.png" alt="" width={90} />
+      <p className="text-center">{getFileName(file.name, true)}</p>
+    </div>
+  );
+}
+
+// FILES
+function File({ file }: ItemProps) {
+  const [src, setSrc] = useState(`${getFileIcon(file.name)}`);
+  return (
+    <div className="w-full">
+      <img
+        onError={() => setSrc("file.png")}
+        className="mx-auto"
+        src={`/icons/${src}`}
+        alt=""
+        width={70}
+      />
+      <p className="mt-2 h-[42px] text-center">{getFileName(file.name)}</p>
+      <p className="text-xs text-gray-500">{getFileSize(file.size)}</p>
+    </div>
   );
 }

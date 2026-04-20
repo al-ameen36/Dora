@@ -4,40 +4,32 @@ import { Breadcrumbs } from "./breadcrumbs";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
 import { Clipboard, Copy, Scissors, Trash } from "lucide-react";
-import type { Action, FileResponse, FileSection, FileType } from "@/types";
+import type { Action, FileResponse, FileType } from "@/types";
 import { useEffect, useState } from "react";
-import { copyFile, deleteFile, moveFile } from "@/functions/file-ops";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { copyFile, deleteFile, getFiles, moveFile } from "@/functions/file-ops";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAtomValue } from "jotai";
+import {
+  currentPathAtom,
+  selectedItemsAtom,
+  totalSelectedAtom,
+} from "@/store/atoms/files";
+import { useFileActions } from "@/hooks/file-actions";
 
-type Props = {
-  selected: FileSection;
-  totalSelected: number;
-  filesArr: FileType[];
-  files: FileType[];
-  folders: FileType[];
-  currentPath: string;
-  handleToggleSelectAll: () => void;
-};
-
-export default function Header({
-  selected,
-  totalSelected,
-  filesArr,
-  currentPath,
-  handleToggleSelectAll,
-}: Props) {
+export default function Header() {
   const queryClient = useQueryClient();
   const [scrolled, setScrolled] = useState(false);
-  const [localSelected, setLocalSelected] = useState<{
-    folders: string[];
-    files: string[];
-    from: string;
-  }>({
-    folders: [],
-    files: [],
-    from: "",
-  });
   const [action, setAction] = useState<Action>("NONE");
+  const currentPath = useAtomValue(currentPathAtom);
+  const { data } = useQuery({
+    queryKey: ["ls", currentPath],
+    queryFn: () => getFiles({ data: { path: currentPath } }),
+  });
+  const selectedItems = useAtomValue(selectedItemsAtom);
+  const totalSelectedItems = useAtomValue(totalSelectedAtom);
+  const totalCount = data?.files.length;
+  const { handleResetSelection, handleToggleSelectAll, normalizePath } =
+    useFileActions();
 
   const copyFiles = useMutation({
     mutationFn: copyFile,
@@ -52,8 +44,8 @@ export default function Header({
         if (!prev) return undefined;
 
         const newFiles = variables.data.files.map<FileType>((f) => ({
-          name: f,
-          fullPath: `${variables.data.to}/${f}`,
+          name: f.name,
+          fullPath: `${variables.data.to}/${f.name}`,
           isDirectory: false, // Fallback, will fix on refetch
           size: -1,
         }));
@@ -91,8 +83,8 @@ export default function Header({
         if (!prev) return undefined;
 
         const newFiles = variables.data.files.map<FileType>((f) => ({
-          name: f,
-          fullPath: `${variables.data.to}/${f}`,
+          name: f.name,
+          fullPath: `${variables.data.to}/${f.name}`,
           isDirectory: false, // Fallback, will fix on refetch
           size: -1,
         }));
@@ -125,11 +117,11 @@ export default function Header({
   });
 
   const handleSetupAction = async (action: Action) => {
-    setLocalSelected({
-      folders: [...selected.folders],
-      files: [...selected.files],
-      from: currentPath,
-    });
+    // setLocalSelected({
+    //   folders: [...selected.folders],
+    //   files: [...selected.files],
+    //   from: currentPath,
+    // });
     setAction(action);
   };
 
@@ -139,18 +131,18 @@ export default function Header({
         copyFiles.mutate({
           data: {
             to: currentPath,
-            files: localSelected.files.concat(localSelected.folders),
+            files: selectedItems,
           },
         });
       else if (action === "MOVE")
         moveFiles.mutate({
           data: {
             to: currentPath,
-            files: localSelected.files.concat(localSelected.folders),
+            files: selectedItems,
           },
         });
 
-      setLocalSelected({ folders: [], files: [], from: "" });
+      handleResetSelection();
     } catch (error) {
       console.error(error);
       throw error;
@@ -161,11 +153,11 @@ export default function Header({
     try {
       deleteFiles.mutate({
         data: {
-          files: selected.files.concat(selected.folders),
+          files: selectedItems,
         },
       });
 
-      setLocalSelected({ folders: [], files: [], from: "" });
+      handleResetSelection();
     } catch (error) {
       console.error(error);
       throw error;
@@ -182,6 +174,10 @@ export default function Header({
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    handleResetSelection();
+  }, [normalizePath(currentPath)]);
 
   return (
     <header
@@ -200,7 +196,7 @@ export default function Header({
       </div>
 
       <nav className="flex items-center justify-between mt-4 h-[20px]">
-        <Breadcrumbs currentPath={currentPath} />
+        <Breadcrumbs />
       </nav>
 
       <nav className="flex gap-4 mt-4 items-center">
@@ -208,11 +204,11 @@ export default function Header({
           <div className="flex items-center gap-2">
             <Checkbox
               name="selectAll"
-              checked={totalSelected === filesArr.length}
+              checked={totalSelectedItems === selectedItems.length}
               onCheckedChange={handleToggleSelectAll}
             />
             <label htmlFor="selectAll" className="me-10">
-              Select all ({totalSelected}/{filesArr.length})
+              Select all ({totalSelectedItems}/{totalCount})
             </label>
           </div>
 
@@ -221,7 +217,7 @@ export default function Header({
               size="icon"
               className="bg-gray-600 text-white"
               onClick={() => handleSetupAction("COPY")}
-              disabled={totalSelected === 0}
+              disabled={totalSelectedItems === 0}
             >
               <Copy />
             </Button>
@@ -229,7 +225,7 @@ export default function Header({
               size="icon"
               className="bg-gray-600 text-white"
               onClick={() => handleSetupAction("MOVE")}
-              disabled={totalSelected === 0}
+              disabled={totalSelectedItems === 0}
             >
               <Scissors />
             </Button>
@@ -237,9 +233,7 @@ export default function Header({
               size="icon"
               className="bg-gray-600 text-white"
               onClick={handlePaste}
-              disabled={
-                localSelected.files.length + localSelected.folders.length === 0
-              }
+              disabled={totalSelectedItems === 0}
             >
               <Clipboard />
             </Button>
@@ -247,7 +241,7 @@ export default function Header({
               className="bg-red-700 text-gray-100 ms-4"
               size="icon"
               onClick={handleDelete}
-              disabled={totalSelected === 0}
+              disabled={totalSelectedItems === 0}
             >
               <Trash />
             </Button>

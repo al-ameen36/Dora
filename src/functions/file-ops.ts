@@ -1,4 +1,4 @@
-import type { FileResponse } from "@/types";
+import { FileTypeSchema, type FileResponse } from "@/types";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 
@@ -31,7 +31,7 @@ export const getFiles = createServerFn()
 
 const copyFilesSchema = z.object({
   to: z.string(),
-  files: z.array(z.string()),
+  files: z.array(FileTypeSchema),
 });
 
 export const copyFile = createServerFn({ method: "POST" })
@@ -54,7 +54,7 @@ export const copyFile = createServerFn({ method: "POST" })
 
 const moveFilesSchema = z.object({
   to: z.string(),
-  files: z.array(z.string()),
+  files: z.array(FileTypeSchema),
 });
 
 export const moveFile = createServerFn({ method: "POST" })
@@ -76,7 +76,7 @@ export const moveFile = createServerFn({ method: "POST" })
   });
 
 const deleteFileSchema = z.object({
-  files: z.array(z.string()),
+  files: z.array(FileTypeSchema),
 });
 
 export const deleteFile = createServerFn({ method: "POST" })

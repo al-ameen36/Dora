@@ -6,10 +6,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { currentPathAtom } from "@/store/atoms/files";
 import { Link } from "@tanstack/react-router";
+import { useAtomValue } from "jotai";
 import React from "react";
 
-export function Breadcrumbs({ currentPath }: { currentPath: string }) {
+export function Breadcrumbs() {
+  const currentPath = useAtomValue(currentPathAtom);
   const paths = currentPath.split("/").filter((path) => path !== "");
 
   return (
