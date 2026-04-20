@@ -7,6 +7,11 @@ import {
   lsDir,
   moveFiles,
 } from "./functions/file-ops.js";
+import {
+  CopyActionPayload,
+  DeleteActionPayload,
+  PasteActionPayload,
+} from "./types.js";
 
 const app = express();
 app.use(cors());
@@ -30,27 +35,27 @@ app.get("/ls", async (req, res) => {
 });
 
 app.post("/copy", async (req, res) => {
-  const { to, files } = req.body;
+  const { to, files }: CopyActionPayload = req.body;
 
   await sleep(6);
-  await copyFiles({ files, to });
+  await copyFiles({ files: files.map((f) => f.fullPath), to });
 
   res.json({ success: true });
 });
 
 app.post("/move", async (req, res) => {
-  const { to, files } = req.body;
+  const { to, files }: PasteActionPayload = req.body;
 
   await sleep(6);
-  await moveFiles({ files, to });
+  await moveFiles({ files: files.map((f) => f.fullPath), to });
 
   res.json({ success: true });
 });
 
 app.delete("/delete", async (req, res) => {
-  const { files } = req.body;
+  const { files }: DeleteActionPayload = req.body;
 
-  await deleteFiles({ files });
+  await deleteFiles({ files: files.map((f) => f.fullPath) });
 
   res.json({ success: true });
 });

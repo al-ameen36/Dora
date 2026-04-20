@@ -1,10 +1,10 @@
 import { readdir, stat, cp, rename } from "node:fs/promises";
-import { FileItem } from "../types.js";
+import { FileType } from "../types.js";
 import path from "node:path";
 import trash from "trash";
 
-export const lsDir = async (dirPath: string): Promise<FileItem[]> => {
-  const list: FileItem[] = [];
+export const lsDir = async (dirPath: string): Promise<FileType[]> => {
+  const list: FileType[] = [];
 
   try {
     const files = await readdir(dirPath, { withFileTypes: true });

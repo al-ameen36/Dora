@@ -18,15 +18,16 @@ import { useFileActions } from "@/hooks/file-actions";
 
 export default function Header() {
   const queryClient = useQueryClient();
+  const selectedItems = useAtomValue(selectedItemsAtom);
+  const totalSelectedItems = useAtomValue(totalSelectedAtom);
   const [scrolled, setScrolled] = useState(false);
   const [action, setAction] = useState<Action>("NONE");
+  const [committedSelection, setCommitedSelection] = useState<FileType[]>([]);
   const currentPath = useAtomValue(currentPathAtom);
   const { data } = useQuery({
     queryKey: ["ls", currentPath],
     queryFn: () => getFiles({ data: { path: currentPath } }),
   });
-  const selectedItems = useAtomValue(selectedItemsAtom);
-  const totalSelectedItems = useAtomValue(totalSelectedAtom);
   const totalCount = data?.files.length;
   const { handleResetSelection, handleToggleSelectAll, normalizePath } =
     useFileActions();
@@ -117,11 +118,7 @@ export default function Header() {
   });
 
   const handleSetupAction = async (action: Action) => {
-    // setLocalSelected({
-    //   folders: [...selected.folders],
-    //   files: [...selected.files],
-    //   from: currentPath,
-    // });
+    setCommitedSelection([...selectedItems]);
     setAction(action);
   };
 
@@ -131,14 +128,14 @@ export default function Header() {
         copyFiles.mutate({
           data: {
             to: currentPath,
-            files: selectedItems,
+            files: committedSelection,
           },
         });
       else if (action === "MOVE")
         moveFiles.mutate({
           data: {
             to: currentPath,
-            files: selectedItems,
+            files: committedSelection,
           },
         });
 
@@ -233,7 +230,7 @@ export default function Header() {
               size="icon"
               className="bg-gray-600 text-white"
               onClick={handlePaste}
-              disabled={totalSelectedItems === 0}
+              disabled={committedSelection.length === 0}
             >
               <Clipboard />
             </Button>

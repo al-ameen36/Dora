@@ -36,7 +36,7 @@ export function GridItem({ file }: Props) {
   return (
     <article
       onClick={handleOpen}
-      className="w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
+      className="relative w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
     >
       {file.size === -1 ? (
         <PendingFile name={getFileNameFromPath(file.name)} />
