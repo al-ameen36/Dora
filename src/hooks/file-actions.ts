@@ -28,12 +28,19 @@ export const useFileActions = () => {
   };
 
   const handleSelect = (file: FileType) => {
-    setSelectedItems((prev) => [...prev, file]);
+    const found = selectedItems.find((f) => f.fullPath === file.fullPath);
+    if (!found) setSelectedItems((prev) => [...prev, file]);
+    else
+      setSelectedItems((prev) =>
+        prev.filter((f) => f.fullPath !== file.fullPath),
+      );
   };
 
   const handleToggleSelectAll = () => {
+    if (!data) return;
+
     if (totalSelectedItems === data?.files.length) setSelectedItems([]);
-    else setSelectedItems((prev) => [...prev]);
+    else setSelectedItems(data?.files.map((file) => file));
   };
 
   const handleResetSelection = () => {

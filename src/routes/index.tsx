@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { GridItem } from "@/components/folder";
+import { GridItem } from "@/components/file";
 import z from "zod";
 import { EmptyState } from "@/components/empty-state";
 import Header from "@/components/header";
