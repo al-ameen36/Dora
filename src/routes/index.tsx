@@ -8,7 +8,7 @@ import { getFiles } from "@/functions/file-ops";
 import SkeletonFiles from "@/components/skeleton-files";
 import { useEffect } from "react";
 import { useSetAtom } from "jotai";
-import { currentPathAtom } from "@/store/atoms/files";
+import { currentPathAtom } from "@/store/ui/files";
 
 const searchSchema = z.object({
   path: z.string().optional(),

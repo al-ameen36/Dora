@@ -3,7 +3,7 @@ import {
   currentPathAtom,
   selectedItemsAtom,
   totalSelectedAtom,
-} from "@/store/atoms/files";
+} from "@/store/ui/files";
 import type { FileType } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";

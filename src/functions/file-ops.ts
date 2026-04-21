@@ -77,6 +77,7 @@ export const moveFile = createServerFn({ method: "POST" })
 
 const deleteFileSchema = z.object({
   files: z.array(FileTypeSchema),
+  currentPath: z.string(),
 });
 
 export const deleteFile = createServerFn({ method: "POST" })

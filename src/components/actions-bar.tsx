@@ -1,0 +1,128 @@
+import { Copy, Scissors, Trash, Clipboard } from "lucide-react";
+import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
+import { useFileActions } from "@/hooks/file-actions";
+import { useEffect, useState } from "react";
+import type { Action, FileType } from "@/types";
+import { useAtomValue } from "jotai";
+import {
+  currentPathAtom,
+  selectedItemsAtom,
+  totalSelectedAtom,
+} from "@/store/ui/files";
+import { useFilesAPI } from "@/store/api/files";
+
+export default function ActionsBar() {
+  const [action, setAction] = useState<Action>("NONE");
+  const [committedSelection, setCommitedSelection] = useState<FileType[]>([]);
+  const currentPath = useAtomValue(currentPathAtom);
+  const selectedItems = useAtomValue(selectedItemsAtom);
+  const totalSelectedItems = useAtomValue(totalSelectedAtom);
+
+  const { data, copyFiles, moveFiles, deleteFiles } = useFilesAPI();
+  const totalCount = data?.files.length;
+  const { handleResetSelection, handleToggleSelectAll, normalizePath } =
+    useFileActions();
+  const handleSetupAction = async (action: Action) => {
+    setCommitedSelection([...selectedItems]);
+    setAction(action);
+  };
+
+  const handlePaste = async () => {
+    try {
+      if (action === "COPY")
+        copyFiles.mutate({
+          data: {
+            to: currentPath,
+            files: committedSelection,
+          },
+        });
+      else if (action === "MOVE")
+        moveFiles.mutate({
+          data: {
+            to: currentPath,
+            files: committedSelection,
+          },
+        });
+
+      handleResetSelection();
+      setCommitedSelection([]);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      deleteFiles.mutate({
+        data: {
+          files: selectedItems,
+          currentPath,
+        },
+      });
+
+      handleResetSelection();
+      setCommitedSelection([]);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    handleResetSelection();
+  }, [normalizePath(currentPath)]);
+
+  return (
+    <nav className="flex gap-4 mt-4 items-center">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            name="selectAll"
+            checked={totalSelectedItems === data?.files.length}
+            onCheckedChange={handleToggleSelectAll}
+          />
+          <label htmlFor="selectAll" className="me-10">
+            Select all ({totalSelectedItems}/{totalCount})
+          </label>
+        </div>
+
+        <div className="flex gap-1">
+          <Button
+            size="icon"
+            className="bg-gray-600 text-white"
+            onClick={() => handleSetupAction("COPY")}
+            disabled={totalSelectedItems === 0}
+          >
+            <Copy />
+          </Button>
+          <Button
+            size="icon"
+            className="bg-gray-600 text-white"
+            onClick={() => handleSetupAction("MOVE")}
+            disabled={totalSelectedItems === 0}
+          >
+            <Scissors />
+          </Button>
+          <Button
+            size="icon"
+            className="bg-gray-600 text-white"
+            onClick={handlePaste}
+            disabled={committedSelection.length === 0}
+          >
+            <Clipboard />
+          </Button>
+          <Button
+            className="bg-red-700 text-gray-100 ms-4"
+            size="icon"
+            onClick={handleDelete}
+            disabled={totalSelectedItems === 0}
+          >
+            <Trash />
+          </Button>
+        </div>
+      </div>
+    </nav>
+  );
+}

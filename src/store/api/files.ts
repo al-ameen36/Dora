@@ -2,7 +2,7 @@ import { copyFile, deleteFile, getFiles, moveFile } from "@/functions/file-ops";
 import type { FileResponse, FileType } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
-import { currentPathAtom } from "../atoms/files";
+import { currentPathAtom } from "../ui/files";
 
 export function useFilesAPI() {
   const queryClient = useQueryClient();
@@ -30,7 +30,7 @@ export function useFilesAPI() {
           const newFiles = variables.data.files.map<FileType>((f) => ({
             name: f.name,
             fullPath: `${variables.data.to}/${f.name}`,
-            isDirectory: false, // Fallback, will fix on refetch
+            isDirectory: f.isDirectory,
             size: -1,
           }));
 
@@ -50,9 +50,9 @@ export function useFilesAPI() {
         });
       }
     },
-    onSettled: async (variables) => {
+    onSettled: async (_data, _error, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: ["ls", variables.data.currentPath],
+        queryKey: ["ls", variables.data.to],
       });
     },
   });
@@ -60,27 +60,30 @@ export function useFilesAPI() {
   const moveFiles = useMutation({
     mutationFn: moveFile,
     onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: ["ls"] });
+      await queryClient.cancelQueries({ queryKey: ["ls", variables.data.to] });
 
       const oldSnapShot = queryClient.getQueriesData<FileResponse>({
-        queryKey: ["ls"],
+        queryKey: ["ls", variables.data.to],
       });
 
-      queryClient.setQueriesData<FileResponse>({ queryKey: ["ls"] }, (prev) => {
-        if (!prev) return undefined;
+      queryClient.setQueriesData<FileResponse>(
+        { queryKey: ["ls", variables.data.to] },
+        (prev) => {
+          if (!prev) return undefined;
 
-        const newFiles = variables.data.files.map<FileType>((f) => ({
-          name: f.name,
-          fullPath: `${variables.data.to}/${f.name}`,
-          isDirectory: false, // Fallback, will fix on refetch
-          size: -1,
-        }));
+          const newFiles = variables.data.files.map<FileType>((f) => ({
+            name: f.name,
+            fullPath: `${variables.data.to}/${f.name}`,
+            isDirectory: f.isDirectory,
+            size: -1,
+          }));
 
-        return {
-          ...prev,
-          files: [...prev.files, ...newFiles],
-        };
-      });
+          return {
+            ...prev,
+            files: [...prev.files, ...newFiles],
+          };
+        },
+      );
 
       return { oldSnapShot };
     },
@@ -91,15 +94,19 @@ export function useFilesAPI() {
         });
       }
     },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["ls"] });
+    onSettled: async (_data, _error, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["ls", variables.data.to],
+      });
     },
   });
 
   const deleteFiles = useMutation({
     mutationFn: deleteFile,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["ls"] });
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["ls", variables.data.currentPath],
+      });
     },
   });
 
