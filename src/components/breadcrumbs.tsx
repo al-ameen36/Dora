@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { currentPathAtom } from "@/store/ui/files";
+import { currentPathAtom } from "@/state/files";
 import { Link } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import React from "react";

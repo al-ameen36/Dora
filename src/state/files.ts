@@ -1,4 +1,4 @@
-import type { FileType } from "@/types";
+import type { FileType } from "@/types/files";
 import { atom } from "jotai";
 
 export const allItemsAtom = atom<FileType[]>([]);

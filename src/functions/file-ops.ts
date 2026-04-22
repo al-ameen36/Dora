@@ -1,4 +1,4 @@
-import { FileTypeSchema, type FileResponse } from "@/types";
+import { FileTypeSchema, type FileResponse } from "@/types/files";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 

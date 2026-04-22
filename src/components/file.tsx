@@ -3,7 +3,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { FileType } from "@/types";
+import type { FileType } from "@/types/files";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -19,7 +19,7 @@ import {
   getFileSize,
 } from "@/lib/helpers";
 import PendingFile from "./pending-file";
-import { useFileActions } from "@/hooks/file-actions";
+import { useFileActions } from "@/utils/file-actions";
 import { useState } from "react";
 
 type Props = {

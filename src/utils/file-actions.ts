@@ -3,8 +3,8 @@ import {
   currentPathAtom,
   selectedItemsAtom,
   totalSelectedAtom,
-} from "@/store/ui/files";
-import type { FileType } from "@/types";
+} from "@/state/files";
+import type { FileType } from "@/types/files";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom, useAtomValue } from "jotai";

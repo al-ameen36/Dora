@@ -1,16 +1,16 @@
 import { Copy, Scissors, Trash, Clipboard } from "lucide-react";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
-import { useFileActions } from "@/hooks/file-actions";
+import { useFileActions } from "@/utils/file-actions";
 import { useEffect, useState } from "react";
-import type { Action, FileType } from "@/types";
+import type { Action, FileType } from "@/types/files";
 import { useAtomValue } from "jotai";
 import {
   currentPathAtom,
   selectedItemsAtom,
   totalSelectedAtom,
-} from "@/store/ui/files";
-import { useFilesAPI } from "@/store/api/files";
+} from "@/state/files";
+import { useFilesAPI } from "@/services/files";
 
 export default function ActionsBar() {
   const [action, setAction] = useState<Action>("NONE");

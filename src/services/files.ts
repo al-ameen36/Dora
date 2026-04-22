@@ -1,8 +1,8 @@
 import { copyFile, deleteFile, getFiles, moveFile } from "@/functions/file-ops";
-import type { FileResponse, FileType } from "@/types";
+import type { FileResponse, FileType } from "@/types/files";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
-import { currentPathAtom } from "../ui/files";
+import { currentPathAtom } from "../state/files";
 
 export function useFilesAPI() {
   const queryClient = useQueryClient();

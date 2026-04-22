@@ -1,5 +1,5 @@
 import { readdir, stat, cp, rename } from "node:fs/promises";
-import { FileType } from "../types.js";
+import { FileType } from "../types/files.js";
 import path from "node:path";
 import trash from "trash";
 

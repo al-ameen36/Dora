@@ -11,7 +11,7 @@ import {
   CopyActionPayload,
   DeleteActionPayload,
   PasteActionPayload,
-} from "./types.js";
+} from "./types/files.js";
 
 const app = express();
 app.use(cors());
