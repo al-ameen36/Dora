@@ -14,17 +14,18 @@ export const lsDir = async (dirPath: string): Promise<FileType[]> => {
 
       const fullPath = path.join(dirPath, file.name);
 
-      let size = 0;
+      let size = null;
 
+      // Only load meta data in the background as files come in view
       // Only files need size (folders are tricky/expensive)
-      if (file.isFile()) {
-        try {
-          const stats = await stat(fullPath);
-          size = stats.size;
-        } catch (err) {
-          console.error("stat error:", err);
-        }
-      }
+      // if (file.isFile()) {
+      //   try {
+      //     const stats = await stat(fullPath);
+      //     size = stats.size;
+      //   } catch (err) {
+      //     console.error("stat error:", err);
+      //   }
+      // }
 
       list.push({
         name: file.name,

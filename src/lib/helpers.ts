@@ -109,12 +109,11 @@ export const getFileSize = (size: number) => {
 
   if (size >= sizes.GB) {
     return `${(size / sizes.GB).toFixed(2)} GB`;
-  }
-  if (size >= sizes.MB) {
+  } else if (size >= sizes.MB) {
     return `${(size / sizes.MB).toFixed(2)} MB`;
-  }
-  if (size >= sizes.KB) {
+  } else if (size >= sizes.KB) {
     return `${(size / sizes.KB).toFixed(2)} KB`;
-  }
-  return `${size} B`;
+  } else if (size !== null) {
+    return `${size} B`;
+  } else return "--";
 };
