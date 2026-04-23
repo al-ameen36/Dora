@@ -13,23 +13,25 @@ import React from "react";
 
 export function Breadcrumbs() {
   const currentPath = useAtomValue(currentPathAtom);
-  let paths = currentPath.split("/").filter((path) => path !== "");
+  let allPaths = currentPath.split("/").filter((path) => path !== "");
+  let pathsToDisplay: string[] = [...allPaths];
 
-  if (paths.length > 4)
-    paths = [
-      paths[0],
-      paths[1],
-      paths[paths.length - 2],
-      paths[paths.length - 1],
+  if (allPaths.length > 4)
+    pathsToDisplay = [
+      allPaths[0],
+      allPaths[1],
+      "...",
+      allPaths[allPaths.length - 2],
+      allPaths[allPaths.length - 1],
     ];
 
   return (
     <Breadcrumb>
-      <BreadcrumbList className="bg-gray-900/70 p-2">
-        {paths.map((path, i) => (
+      <BreadcrumbList className="bg-gray-900/70 p-2 rounded-sm">
+        {pathsToDisplay.map((path, i) => (
           <React.Fragment key={path + i + "item"}>
             <BreadcrumbItem>
-              {i == 0 || i == paths.length - 1 ? (
+              {i == 0 || i == allPaths.length - 1 || path === "..." ? (
                 <BreadcrumbPage className="truncate max-w-[10ch]">
                   {path}
                 </BreadcrumbPage>
@@ -37,7 +39,7 @@ export function Breadcrumbs() {
                 <BreadcrumbLink asChild>
                   <Link
                     to="/"
-                    search={{ path: getURLSegment(paths, i) }}
+                    search={{ path: getURLSegment(allPaths, i) }}
                     className="truncate max-w-[10ch]"
                   >
                     {path}
@@ -45,13 +47,7 @@ export function Breadcrumbs() {
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>
-            {i !== paths.length - 1 && <BreadcrumbSeparator />}
-            {i === 1 && (
-              <>
-                ...
-                <BreadcrumbSeparator />
-              </>
-            )}
+            {i !== pathsToDisplay.length - 1 && <BreadcrumbSeparator />}
           </React.Fragment>
         ))}
       </BreadcrumbList>
@@ -60,6 +56,11 @@ export function Breadcrumbs() {
 }
 
 const getURLSegment = (url: string[], endIndex: number) => {
-  const newURL = url.slice(0, endIndex + 1).join("/");
+  const newURL = url
+    .slice(0, endIndex + 1)
+    .join("/")
+    .replace("/...", "");
+  console.log(newURL);
+
   return "/" + encodeURIComponent(newURL);
 };
