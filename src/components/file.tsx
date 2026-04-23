@@ -20,14 +20,18 @@ import {
 } from "@/lib/helpers";
 import PendingFile from "./pending-file";
 import { useFileActions } from "@/utils/file-actions";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
+import { fileSizeAtom } from "@/state/app";
+import { useAtomValue } from "jotai";
 
 type Props = {
   file: FileType;
+  style?: CSSProperties;
 };
 
-export function GridItem({ file }: Props) {
+export function GridItem({ file, style }: Props) {
   const { handleSelect, isChecked, handleOpenFolder } = useFileActions();
+  const fileSize = useAtomValue(fileSizeAtom);
 
   const handleOpen = file.isDirectory
     ? () => handleOpenFolder(file.fullPath)
@@ -36,7 +40,8 @@ export function GridItem({ file }: Props) {
   return (
     <article
       onClick={handleOpen}
-      className="relative w-[100px] h-[170px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm"
+      className={`relative w-[${fileSize.width}px] h-[${fileSize.height}px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm`}
+      style={style}
     >
       {file.size === -1 ? (
         <PendingFile name={getFileNameFromPath(file.name)} />
