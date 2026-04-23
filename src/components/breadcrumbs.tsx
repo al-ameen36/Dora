@@ -13,11 +13,19 @@ import React from "react";
 
 export function Breadcrumbs() {
   const currentPath = useAtomValue(currentPathAtom);
-  const paths = currentPath.split("/").filter((path) => path !== "");
+  let paths = currentPath.split("/").filter((path) => path !== "");
+
+  if (paths.length > 4)
+    paths = [
+      paths[0],
+      paths[1],
+      paths[paths.length - 2],
+      paths[paths.length - 1],
+    ];
 
   return (
     <Breadcrumb>
-      <BreadcrumbList>
+      <BreadcrumbList className="bg-gray-900/70 p-2">
         {paths.map((path, i) => (
           <React.Fragment key={path + i + "item"}>
             <BreadcrumbItem>
@@ -38,6 +46,12 @@ export function Breadcrumbs() {
               )}
             </BreadcrumbItem>
             {i !== paths.length - 1 && <BreadcrumbSeparator />}
+            {i === 1 && (
+              <>
+                ...
+                <BreadcrumbSeparator />
+              </>
+            )}
           </React.Fragment>
         ))}
       </BreadcrumbList>

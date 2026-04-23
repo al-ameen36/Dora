@@ -77,16 +77,18 @@ export default function ActionsBar() {
   return (
     <nav className="flex gap-4 mt-4 items-center">
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            name="selectAll"
-            checked={totalSelectedItems === data?.files.length}
-            onCheckedChange={handleToggleSelectAll}
-          />
-          <label htmlFor="selectAll" className="me-10">
-            Select all ({totalSelectedItems}/{totalCount})
-          </label>
-        </div>
+        {selectedItems.length > 0 && (
+          <div className="flex items-center gap-2 bg-gray-600/80 rounded-sm p-2">
+            <Checkbox
+              name="selectAll"
+              checked={totalSelectedItems === data?.files.length}
+              onCheckedChange={handleToggleSelectAll}
+            />
+            <label htmlFor="selectAll">
+              ({totalSelectedItems}/{totalCount})
+            </label>
+          </div>
+        )}
 
         <div className="flex gap-1">
           <Button
