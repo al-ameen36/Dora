@@ -105,3 +105,25 @@ export const deleteFile = createServerFn({ method: "POST" })
 
     return await res.json();
   });
+
+const openFileSchema = z.object({
+  files: z.array(FileTypeSchema),
+});
+
+export const openFile = createServerFn({ method: "GET" })
+  .inputValidator(openFileSchema)
+  .handler(async ({ data }) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/open`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...data }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to open file: ${res.status} ${res.statusText}`);
+    }
+
+    return await res.json();
+  });

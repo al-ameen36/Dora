@@ -12,8 +12,8 @@ export type FileActionBase = {
 };
 
 export type CopyActionPayload = FileActionBase;
-
 export type PasteActionPayload = FileActionBase;
 export type DeleteActionPayload = Omit<FileActionBase, "to"> & {
   currentPath: string;
 };
+export type OpenctionPayload = { files: FileType[] };

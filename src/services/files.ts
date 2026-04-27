@@ -1,4 +1,10 @@
-import { copyFile, deleteFile, getFiles, moveFile } from "@/functions/file-ops";
+import {
+  copyFile,
+  deleteFile,
+  getFiles,
+  moveFile,
+  openFile,
+} from "@/functions/file-ops";
 import type { FileResponse, FileType } from "@/types/files";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
@@ -152,10 +158,18 @@ export function useFilesAPI() {
     },
   });
 
+  const openFiles = useMutation({
+    mutationFn: openFile,
+    onError: (err) => {
+      console.error(err);
+    },
+  });
+
   return {
     data,
     copyFiles,
     deleteFiles,
     moveFiles,
+    openFiles,
   };
 }

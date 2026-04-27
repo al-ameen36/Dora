@@ -23,6 +23,7 @@ import { useFileActions } from "@/utils/file-actions";
 import { useState, type CSSProperties } from "react";
 import { fileSizeAtom } from "@/state/app";
 import { useAtomValue } from "jotai";
+import { useFilesAPI } from "@/services/files";
 
 type Props = {
   file: FileType;
@@ -32,10 +33,11 @@ type Props = {
 export function GridItem({ file, style }: Props) {
   const { handleSelect, isChecked, handleOpenFolder } = useFileActions();
   const fileSize = useAtomValue(fileSizeAtom);
+  const { openFiles } = useFilesAPI();
 
   const handleOpen = file.isDirectory
     ? () => handleOpenFolder(file.fullPath)
-    : () => {};
+    : () => openFiles.mutate({ data: { files: [file] } });
 
   return (
     <article

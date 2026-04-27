@@ -11,9 +11,11 @@ import {
 import {
   CopyActionPayload,
   DeleteActionPayload,
+  OpenctionPayload,
   PasteActionPayload,
 } from "./types/files.js";
 import { getSafePath } from "./helpers/safe-path.js";
+import open from "open";
 
 const app = express();
 app.use(cors());
@@ -63,6 +65,15 @@ app.delete("/delete", async (req, res) => {
   });
 
   res.json({ success: true, currentPath: getSafePath(currentPath) });
+});
+
+app.post("/open", async (req, res) => {
+  const { files }: OpenctionPayload = req.body;
+
+  if (files.length === 0) res.json({ success: false });
+
+  await open(getSafePath(files[0].fullPath));
+  res.json({ success: true });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
