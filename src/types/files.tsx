@@ -4,7 +4,7 @@ export const FileTypeSchema = z.object({
   name: z.string(),
   fullPath: z.string(),
   isDirectory: z.boolean(),
-  size: z.number(),
+  size: z.number().nullable(),
 });
 
 export type FileType = z.infer<typeof FileTypeSchema>;

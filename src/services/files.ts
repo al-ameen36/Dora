@@ -43,14 +43,16 @@ export function useFilesAPI() {
 
       return { oldSnapShot };
     },
-    onError: (_err, _variables, context) => {
+    onError: (err, _variables, context) => {
+      console.error(err);
+
       if (context?.oldSnapShot) {
         context.oldSnapShot.forEach(([queryKey, oldData]) => {
           queryClient.setQueryData(queryKey, oldData);
         });
       }
     },
-    onSettled: async (_data, _error, variables) => {
+    onSettled: async (_data, _err, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ["ls", variables.data.to],
       });
@@ -87,14 +89,15 @@ export function useFilesAPI() {
 
       return { oldSnapShot };
     },
-    onError: (_err, _variables, context) => {
+    onError: (err, _variables, context) => {
+      console.error(err);
       if (context?.oldSnapShot) {
         context.oldSnapShot.forEach(([queryKey, oldData]) => {
           queryClient.setQueryData(queryKey, oldData);
         });
       }
     },
-    onSettled: async (_data, _error, variables) => {
+    onSettled: async (_data, _err, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ["ls", variables.data.to],
       });
@@ -107,6 +110,9 @@ export function useFilesAPI() {
       await queryClient.invalidateQueries({
         queryKey: ["ls", variables.data.currentPath],
       });
+    },
+    onError: (err) => {
+      console.error(err);
     },
   });
 

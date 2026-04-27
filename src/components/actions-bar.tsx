@@ -29,45 +29,35 @@ export default function ActionsBar() {
   };
 
   const handlePaste = async () => {
-    try {
-      if (action === "COPY")
-        copyFiles.mutate({
-          data: {
-            to: currentPath,
-            files: committedSelection,
-          },
-        });
-      else if (action === "MOVE")
-        moveFiles.mutate({
-          data: {
-            to: currentPath,
-            files: committedSelection,
-          },
-        });
-
-      handleResetSelection();
-      setCommitedSelection([]);
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      deleteFiles.mutate({
+    if (action === "COPY")
+      copyFiles.mutate({
         data: {
-          files: selectedItems,
-          currentPath,
+          to: currentPath,
+          files: committedSelection,
+        },
+      });
+    else if (action === "MOVE")
+      moveFiles.mutate({
+        data: {
+          to: currentPath,
+          files: committedSelection,
         },
       });
 
-      handleResetSelection();
-      setCommitedSelection([]);
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    handleResetSelection();
+    setCommitedSelection([]);
+  };
+
+  const handleDelete = async () => {
+    deleteFiles.mutate({
+      data: {
+        files: selectedItems,
+        currentPath,
+      },
+    });
+
+    handleResetSelection();
+    setCommitedSelection([]);
   };
 
   useEffect(() => {

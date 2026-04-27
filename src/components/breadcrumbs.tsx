@@ -60,7 +60,6 @@ const getURLSegment = (url: string[], endIndex: number) => {
     .slice(0, endIndex + 1)
     .join("/")
     .replace("/...", "");
-  console.log(newURL);
 
   return "/" + encodeURIComponent(newURL);
 };

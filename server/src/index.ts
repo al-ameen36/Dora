@@ -20,9 +20,9 @@ const PORT = Number(process.env.PORT) || 3001;
 const ROOT_DIR = os.homedir();
 
 // Temp sleep function
-function sleep(s: number) {
-  return new Promise((resolve) => setTimeout(resolve, s * 1000));
-}
+// function sleep(s: number) {
+//   return new Promise((resolve) => setTimeout(resolve, s * 1000));
+// }
 
 app.get("/ls", async (req, res) => {
   let path = req.query.path as string;
@@ -37,7 +37,7 @@ app.get("/ls", async (req, res) => {
 app.post("/copy", async (req, res) => {
   const { to, files }: CopyActionPayload = req.body;
 
-  await sleep(6);
+  // await sleep(6);
   await copyFiles({ files: files.map((f) => f.fullPath), to });
 
   res.json({ success: true, currentPath: to });
@@ -46,7 +46,7 @@ app.post("/copy", async (req, res) => {
 app.post("/move", async (req, res) => {
   const { to, files }: PasteActionPayload = req.body;
 
-  await sleep(6);
+  // await sleep(6);
   await moveFiles({ files: files.map((f) => f.fullPath), to });
 
   res.json({ success: true, currentPath: to });
