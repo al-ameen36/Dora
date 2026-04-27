@@ -5,7 +5,13 @@ import z from "zod";
 export const getFiles = createServerFn()
   .inputValidator(
     z.object({
-      path: z.string().optional(),
+      path: z
+        .string()
+        .regex(
+          /^((?!\.\.[/\\]).)*$/,
+          "Directory traversal sequences (../) are not allowed",
+        )
+        .optional(),
     }),
   )
   .handler(async ({ data: { path } }): Promise<FileResponse> => {

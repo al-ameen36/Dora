@@ -13,16 +13,18 @@ import React from "react";
 
 export function Breadcrumbs() {
   const currentPath = useAtomValue(currentPathAtom);
-  let allPaths = currentPath.split("/").filter((path) => path !== "");
-  let pathsToDisplay: string[] = [...allPaths];
+  let allParts = decodeURIComponent(currentPath)
+    .split("/")
+    .filter((path) => path !== "");
+  let pathsToDisplay: string[] = [...allParts];
 
-  if (allPaths.length > 4)
+  if (allParts.length > 4)
     pathsToDisplay = [
-      allPaths[0],
-      allPaths[1],
+      allParts[0],
+      allParts[1],
       "...",
-      allPaths[allPaths.length - 2],
-      allPaths[allPaths.length - 1],
+      allParts[allParts.length - 2],
+      allParts[allParts.length - 1],
     ];
 
   return (
@@ -31,7 +33,7 @@ export function Breadcrumbs() {
         {pathsToDisplay.map((path, i) => (
           <React.Fragment key={path + i + "item"}>
             <BreadcrumbItem>
-              {i == 0 || i == allPaths.length - 1 || path === "..." ? (
+              {i == 0 || i == allParts.length - 1 || path === "..." ? (
                 <BreadcrumbPage className="truncate max-w-[10ch]">
                   {path}
                 </BreadcrumbPage>
@@ -39,7 +41,7 @@ export function Breadcrumbs() {
                 <BreadcrumbLink asChild>
                   <Link
                     to="/"
-                    search={{ path: getURLSegment(allPaths, i) }}
+                    search={{ path: getURLSegment(allParts, i) }}
                     className="truncate max-w-[10ch]"
                   >
                     {path}
@@ -55,11 +57,10 @@ export function Breadcrumbs() {
   );
 }
 
-const getURLSegment = (url: string[], endIndex: number) => {
-  const newURL = url
-    .slice(0, endIndex + 1)
+const getURLSegment = (URLParts: string[], endIndex: number) => {
+  const newURL = URLParts.slice(0, endIndex + 1)
     .join("/")
     .replace("/...", "");
 
-  return "/" + encodeURIComponent(newURL);
+  return "/" + newURL;
 };

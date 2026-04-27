@@ -25,11 +25,12 @@ export const Route = createFileRoute("/")({
 
 function App() {
   const { path } = Route.useSearch();
+  const httpSafePath = encodeURIComponent(path || "/");
   const setCurrentPath = useSetAtom(currentPathAtom);
   const fileSize = useAtomValue(fileSizeAtom);
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["ls", path],
-    queryFn: () => getFiles({ data: { path } }),
+    queryKey: ["ls", httpSafePath],
+    queryFn: () => getFiles({ data: { path: httpSafePath } }),
   });
 
   const parentRef = useRef<HTMLDivElement>(null);
@@ -52,7 +53,7 @@ function App() {
   const virtualItems = virtualizer.getVirtualItems();
 
   useEffect(() => {
-    setCurrentPath(decodeURIComponent(path || ""));
+    setCurrentPath(httpSafePath);
   }, [path]);
 
   useEffect(() => {

@@ -20,7 +20,7 @@ export const useFileActions = () => {
   const navigate = useNavigate({ from: "/" });
 
   const handleOpenFolder = (path: string) => {
-    const safePath = encodeURIComponent(path);
+    const safePath = path;
 
     navigate({
       search: (prev) => ({ ...prev, path: safePath }),
