@@ -4,10 +4,11 @@ import {
   selectedItemsAtom,
   totalSelectedAtom,
 } from "@/state/files";
-import type { FileType } from "@/types/files";
+import type { FileSelection, FileType } from "@/types/files";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom, useAtomValue } from "jotai";
+import type { Dispatch } from "react";
 
 export const useFileActions = () => {
   const [selectedItems, setSelectedItems] = useAtom(selectedItemsAtom);
@@ -20,35 +21,48 @@ export const useFileActions = () => {
   const navigate = useNavigate({ from: "/" });
 
   const handleOpenFolder = (path: string) => {
-    const safePath = path;
-
     navigate({
-      search: (prev) => ({ ...prev, path: safePath }),
+      search: (prev) => ({ ...prev, path }),
     });
   };
 
   const handleSelect = (file: FileType) => {
-    const found = selectedItems.find((f) => f.fullPath === file.fullPath);
-    if (!found) setSelectedItems((prev) => [...prev, file]);
+    const found = selectedItems.files.find((f) => f.fullPath === file.fullPath);
+    if (!found)
+      setSelectedItems((prev) => ({
+        from: currentPath,
+        to: "",
+        files: [...prev.files, file],
+      }));
     else
-      setSelectedItems((prev) =>
-        prev.filter((f) => f.fullPath !== file.fullPath),
-      );
+      setSelectedItems((prev) => ({
+        ...prev,
+        selectedFrom: currentPath,
+        files: prev.files.filter((f) => f.fullPath !== file.fullPath),
+      }));
+  };
+
+  const handleResetSelection = (
+    setter: Dispatch<FileSelection> = setSelectedItems,
+  ) => {
+    setter({ files: [], from: "", to: "" });
   };
 
   const handleToggleSelectAll = () => {
     if (!data) return;
 
-    if (totalSelectedItems === data?.files.length) setSelectedItems([]);
-    else setSelectedItems(data?.files.map((file) => file));
-  };
-
-  const handleResetSelection = () => {
-    setSelectedItems([]);
+    if (totalSelectedItems === data?.files.length)
+      handleResetSelection(setSelectedItems);
+    else
+      setSelectedItems({
+        files: data?.files.map((file) => file),
+        from: currentPath,
+        to: "",
+      });
   };
 
   const isChecked = (file: FileType) =>
-    Boolean(selectedItems.find((f) => f.name === file.name));
+    Boolean(selectedItems.files.find((f) => f.name === file.name));
 
   // Normalize path to avoid resets on trailing slash changes
   const normalizePath = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);

@@ -36,6 +36,7 @@ export const getFiles = createServerFn()
   });
 
 const copyFilesSchema = z.object({
+  from: z.string(),
   to: z.string(),
   files: z.array(FileTypeSchema),
 });
@@ -59,6 +60,7 @@ export const copyFile = createServerFn({ method: "POST" })
   });
 
 const moveFilesSchema = z.object({
+  from: z.string(),
   to: z.string(),
   files: z.array(FileTypeSchema),
 });

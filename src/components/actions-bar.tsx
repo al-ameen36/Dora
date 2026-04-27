@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { useFileActions } from "@/utils/file-actions";
 import { useEffect, useState } from "react";
-import type { Action, FileType } from "@/types/files";
+import type { Action, FileSelection } from "@/types/files";
 import { useAtomValue } from "jotai";
 import {
   currentPathAtom,
@@ -14,8 +14,12 @@ import { useFilesAPI } from "@/services/files";
 
 export default function ActionsBar() {
   const [action, setAction] = useState<Action>("NONE");
-  const [committedSelection, setCommitedSelection] = useState<FileType[]>([]);
   const currentPath = useAtomValue(currentPathAtom);
+  const [committedSelection, setCommitedSelection] = useState<FileSelection>({
+    files: [],
+    from: "",
+    to: currentPath,
+  });
   const selectedItems = useAtomValue(selectedItemsAtom);
   const totalSelectedItems = useAtomValue(totalSelectedAtom);
 
@@ -24,7 +28,7 @@ export default function ActionsBar() {
   const { handleResetSelection, handleToggleSelectAll, normalizePath } =
     useFileActions();
   const handleSetupAction = async (action: Action) => {
-    setCommitedSelection([...selectedItems]);
+    setCommitedSelection({ ...selectedItems });
     setAction(action);
   };
 
@@ -32,32 +36,34 @@ export default function ActionsBar() {
     if (action === "COPY")
       copyFiles.mutate({
         data: {
+          from: committedSelection.from,
           to: currentPath,
-          files: committedSelection,
+          files: committedSelection.files,
         },
       });
     else if (action === "MOVE")
       moveFiles.mutate({
         data: {
+          from: committedSelection.from,
           to: currentPath,
-          files: committedSelection,
+          files: committedSelection.files,
         },
       });
 
     handleResetSelection();
-    setCommitedSelection([]);
+    handleResetSelection(setCommitedSelection);
   };
 
   const handleDelete = async () => {
     deleteFiles.mutate({
       data: {
-        files: selectedItems,
+        files: selectedItems.files,
         currentPath,
       },
     });
 
     handleResetSelection();
-    setCommitedSelection([]);
+    handleResetSelection(setCommitedSelection);
   };
 
   useEffect(() => {
@@ -67,7 +73,7 @@ export default function ActionsBar() {
   return (
     <nav className="flex gap-4 mt-4 items-center">
       <div className="flex items-center gap-2">
-        {selectedItems.length > 0 && (
+        {selectedItems.files.length > 0 && (
           <div className="flex items-center gap-2 bg-gray-600/80 rounded-sm p-2">
             <Checkbox
               name="selectAll"
@@ -102,7 +108,7 @@ export default function ActionsBar() {
             size="icon"
             className="bg-gray-600 text-white"
             onClick={handlePaste}
-            disabled={committedSelection.length === 0}
+            disabled={committedSelection.files.length === 0}
           >
             <Clipboard />
           </Button>

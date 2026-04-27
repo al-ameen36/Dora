@@ -56,6 +56,9 @@ export function useFilesAPI() {
       await queryClient.invalidateQueries({
         queryKey: ["ls", variables.data.to],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ["ls", variables.data.from],
+      });
     },
   });
 
@@ -63,9 +66,17 @@ export function useFilesAPI() {
     mutationFn: moveFile,
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: ["ls", variables.data.to] });
+      await queryClient.cancelQueries({
+        queryKey: ["ls", variables.data.from],
+      });
 
-      const oldSnapShot = queryClient.getQueriesData<FileResponse>({
+      const filesSet = new Set<string>();
+      const oldSnapShotTo = queryClient.getQueriesData<FileResponse>({
         queryKey: ["ls", variables.data.to],
+      });
+
+      const oldSnapShotFrom = queryClient.getQueriesData<FileResponse>({
+        queryKey: ["ls", variables.data.from],
       });
 
       queryClient.setQueriesData<FileResponse>(
@@ -73,12 +84,15 @@ export function useFilesAPI() {
         (prev) => {
           if (!prev) return undefined;
 
-          const newFiles = variables.data.files.map<FileType>((f) => ({
-            name: f.name,
-            fullPath: `${variables.data.to}/${f.name}`,
-            isDirectory: f.isDirectory,
-            size: -1,
-          }));
+          const newFiles = variables.data.files.map<FileType>((f) => {
+            filesSet.add(f.fullPath);
+            return {
+              name: f.name,
+              fullPath: `${variables.data.to}/${f.name}`,
+              isDirectory: f.isDirectory,
+              size: -1,
+            };
+          });
 
           return {
             ...prev,
@@ -87,12 +101,31 @@ export function useFilesAPI() {
         },
       );
 
-      return { oldSnapShot };
+      queryClient.setQueriesData<FileResponse>(
+        { queryKey: ["ls", variables.data.from] },
+        (prev) => {
+          if (!prev) return undefined;
+
+          const newFiles = prev.files.filter((f) => !filesSet.has(f.fullPath));
+
+          return {
+            ...prev,
+            files: newFiles,
+          };
+        },
+      );
+
+      return { oldSnapShotTo, oldSnapShotFrom };
     },
     onError: (err, _variables, context) => {
       console.error(err);
-      if (context?.oldSnapShot) {
-        context.oldSnapShot.forEach(([queryKey, oldData]) => {
+      if (context?.oldSnapShotTo) {
+        context.oldSnapShotTo.forEach(([queryKey, oldData]) => {
+          queryClient.setQueryData(queryKey, oldData);
+        });
+      }
+      if (context?.oldSnapShotFrom) {
+        context.oldSnapShotFrom.forEach(([queryKey, oldData]) => {
           queryClient.setQueryData(queryKey, oldData);
         });
       }
@@ -100,6 +133,9 @@ export function useFilesAPI() {
     onSettled: async (_data, _err, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ["ls", variables.data.to],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["ls", variables.data.from],
       });
     },
   });

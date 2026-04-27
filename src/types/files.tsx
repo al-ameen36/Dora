@@ -9,6 +9,12 @@ export const FileTypeSchema = z.object({
 
 export type FileType = z.infer<typeof FileTypeSchema>;
 
+export type FileSelection = {
+  to: string;
+  from: string;
+  files: FileType[];
+};
+
 export type FileResponse = {
   files: FileType[];
   currentPath: string;

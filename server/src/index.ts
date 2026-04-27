@@ -23,22 +23,24 @@ const ROOT_DIR = os.homedir();
 
 app.get("/ls", async (req, res) => {
   let currentPath = req.query.path as string;
-  if (!currentPath) currentPath = ROOT_DIR;
+  const safePath = getSafePath(currentPath);
 
-  const files = await lsDir(getSafePath(ROOT_DIR, currentPath));
+  if (!safePath) currentPath = ROOT_DIR + path.sep;
+
+  const files = await lsDir(safePath);
   res.json({ files, currentPath: currentPath });
 });
 
 app.post("/copy", async (req, res) => {
-  const { to, files }: CopyActionPayload = req.body;
+  const { to, from, files }: CopyActionPayload = req.body;
 
   // await sleep(6);
   await copyFiles({
-    files: files.map((f) => f.fullPath),
-    to: getSafePath(ROOT_DIR, to),
+    files: files.map((f) => getSafePath(f.fullPath)),
+    to: getSafePath(to),
   });
 
-  res.json({ success: true, currentPath: getSafePath(ROOT_DIR, to) });
+  res.json({ success: true, currentPath: getSafePath(to) });
 });
 
 app.post("/move", async (req, res) => {
@@ -46,21 +48,21 @@ app.post("/move", async (req, res) => {
 
   // await sleep(6);
   await moveFiles({
-    files: files.map((f) => f.fullPath),
-    to: getSafePath(ROOT_DIR, to),
+    files: files.map((f) => getSafePath(f.fullPath)),
+    to: getSafePath(to),
   });
 
-  res.json({ success: true, currentPath: getSafePath(ROOT_DIR, to) });
+  res.json({ success: true, currentPath: getSafePath(to) });
 });
 
 app.delete("/delete", async (req, res) => {
   const { files, currentPath }: DeleteActionPayload = req.body;
 
   await deleteFiles({
-    files: files.map((f) => getSafePath(ROOT_DIR, f.fullPath)),
+    files: files.map((f) => getSafePath(f.fullPath)),
   });
 
-  res.json({ success: true, currentPath: getSafePath(ROOT_DIR, currentPath) });
+  res.json({ success: true, currentPath: getSafePath(currentPath) });
 });
 
 app.listen(PORT, "0.0.0.0", () => {

@@ -100,14 +100,15 @@ export const getFileIcon = (name: string) => {
   );
 };
 
-export const getFileSize = (size: number) => {
+export const getFileSize = (size: number | null) => {
   const sizes = {
     KB: 1000,
     MB: 1000 * 1000,
     GB: 1000 * 1000 * 1000,
   };
 
-  if (size >= sizes.GB) {
+  if (size === null) return "--";
+  else if (size >= sizes.GB) {
     return `${(size / sizes.GB).toFixed(2)} GB`;
   } else if (size >= sizes.MB) {
     return `${(size / sizes.MB).toFixed(2)} MB`;
@@ -115,5 +116,5 @@ export const getFileSize = (size: number) => {
     return `${(size / sizes.KB).toFixed(2)} KB`;
   } else if (size !== null) {
     return `${size} B`;
-  } else return "--";
+  }
 };

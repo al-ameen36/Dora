@@ -8,6 +8,7 @@ export type FileType = {
 export type FileActionBase = {
   files: FileType[];
   to: string;
+  from: string;
 };
 
 export type CopyActionPayload = FileActionBase;

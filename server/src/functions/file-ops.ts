@@ -12,7 +12,7 @@ export const lsDir = async (dirPath: string): Promise<FileType[]> => {
     for (const file of files) {
       if (file.name.startsWith(".")) continue;
 
-      const fullPath = path.join(dirPath, file.name);
+      const fullPath = path.resolve(dirPath, file.name);
 
       let size = null;
 
