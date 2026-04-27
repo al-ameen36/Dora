@@ -81,10 +81,11 @@ export default function ActionsBar() {
           <div className="flex items-center gap-2 bg-gray-600/80 rounded-sm p-2">
             <Checkbox
               name="selectAll"
+              id="selectAll"
               checked={totalSelectedItems === data?.files.length}
               onCheckedChange={handleToggleSelectAll}
             />
-            <label htmlFor="selectAll">
+            <label htmlFor="selectAll" className="cursor-pointer">
               ({totalSelectedItems}/{totalCount})
             </label>
           </div>

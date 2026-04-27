@@ -1,193 +1,46 @@
-Welcome to your new TanStack Start app! 
 
-# Getting Started
+# Dora: A Snappy Web-Based File Explorer
 
-To run this application:
+Dora is a file manager built for the web that doesn't feel like a website. Web-based explorers can feel slow and clunky; I’m building this to see how far I can push TanStack Start and Node.js to create a native-feeling experience.
 
-```bash
-pnpm install
-pnpm dev
-```
+## The Tech Stack
 
-# Building For Production
+* Framework: TanStack Start (for that sweet full-stack type safety).
 
-To build this application for production:
+* State: Jotai (for UI bits) + TanStack Query (for the file data).
 
-```bash
-pnpm build
-```
+* Performance: TanStack Virtual (because rendering 5,000 folders at once kills the DOM).
 
-## Testing
+* Backend: Node/Express to talk to the actual filesystem.
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+### What I’ve Solved So Far
 
-```bash
-pnpm test
-```
+* **Navigation:** Fast, recursive folder traversal.
 
-## Styling
+* **File Management:** Full support for **Selection, Copy, Cut, Paste, and Delete**.
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+* **Zero-Latency Feel:** Using **Optimistic Updates** to handle file ops—the UI reflects changes instantly before the server confirms them.
 
-### Removing Tailwind CSS
+* **Security:** **Zod-validated paths** that prevent directory traversal.
 
-If you prefer not to use Tailwind CSS:
+* **Performance:** **TanStack Virtual** handles long lists without lag, and I'm using `os.homedir()` to keep it cross-platform.
 
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
+### Work in Progress (The Roadmap)
 
+The app is evolving. Here’s what I’m tackling next:
 
+1. **High-Performance Indexing:** Moving from "on-demand" disk access to an **In-Memory Map index** (powered by Chokidar) to make navigation near-instant.
 
-## Routing
+2. **Drag & Drop:** Implementing a native-feeling drag-and-drop layer for moving files within the explorer.
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+3. **Search:** Adding a real-time, fuzzy-search engine that queries the file index as you type.
 
-### Adding A Route
+4. **Open File Functionality:** Building the bridge between the backend file stream and the frontend previewers (text, image, etc.).
 
-To add a new route to your application just add a new file in the `./src/routes` directory.
+5. **UI Iteration:** I’m continuously refining the component library (Shadcn) to give it a more refined, "desktop-pro" aesthetic.
 
-TanStack will automatically generate the content of the route file for you.
+### Lessons from the Build
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+* Atomic over Global: Using Jotai for things like "selection state" saved me from the re-render nightmare that usually happens with React Context.
 
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+* Perception is Everything: Sometimes the disk is slow, but if the UI responds instantly and shows a skeleton loader for the metadata, the user doesn't care.
