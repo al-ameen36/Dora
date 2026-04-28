@@ -8,8 +8,15 @@ export function SearchArea() {
   return (
     <Field>
       <ButtonGroup>
-        <Input id="input-button-group" placeholder="Type to search..." />
-        <Button variant="outline">
+        <Input
+          id="input-button-group"
+          placeholder="Type to search..."
+          style={{ borderRadius: "3px 0 0 3px !important" }}
+        />
+        <Button
+          variant="outline"
+          style={{ borderRadius: "0 3px 3px 0px !important" }}
+        >
           <Search />
         </Button>
       </ButtonGroup>

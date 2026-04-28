@@ -18,14 +18,12 @@ export const getFiles = createServerFn()
     const query = new URLSearchParams();
     if (path) query.set("path", path);
 
-    const url = `${import.meta.env.VITE_API_URL}/ls?${query.toString()}`;
+    const url = `${process.env.API_URL}/ls?${query.toString()}`;
 
     try {
       const res = await fetch(url);
       if (!res.ok) {
-        throw new Error(
-          `Failed to fetch files: ${res.status} ${res.statusText}`,
-        );
+        throw new Error(`Failed to fetch files`);
       }
       const data = await res.json();
       return data;
@@ -44,7 +42,7 @@ const copyFilesSchema = z.object({
 export const copyFile = createServerFn({ method: "POST" })
   .inputValidator(copyFilesSchema)
   .handler(async ({ data }) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/copy`, {
+    const res = await fetch(`${process.env.API_URL}/copy`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,7 +51,7 @@ export const copyFile = createServerFn({ method: "POST" })
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to copy file: ${res.status} ${res.statusText}`);
+      throw new Error(`Failed to copy file`);
     }
 
     return await res.json();
@@ -68,7 +66,7 @@ const moveFilesSchema = z.object({
 export const moveFile = createServerFn({ method: "POST" })
   .inputValidator(moveFilesSchema)
   .handler(async ({ data }) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/move`, {
+    const res = await fetch(`${process.env.API_URL}/move`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +75,7 @@ export const moveFile = createServerFn({ method: "POST" })
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to move file: ${res.status} ${res.statusText}`);
+      throw new Error(`Failed to move file`);
     }
 
     return await res.json();
@@ -91,7 +89,7 @@ const deleteFileSchema = z.object({
 export const deleteFile = createServerFn({ method: "POST" })
   .inputValidator(deleteFileSchema)
   .handler(async ({ data }) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/delete`, {
+    const res = await fetch(`${process.env.API_URL}/delete`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -100,7 +98,7 @@ export const deleteFile = createServerFn({ method: "POST" })
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to delete file: ${res.status} ${res.statusText}`);
+      throw new Error(`Failed to delete file`);
     }
 
     return await res.json();
@@ -113,7 +111,7 @@ const openFileSchema = z.object({
 export const openFile = createServerFn({ method: "GET" })
   .inputValidator(openFileSchema)
   .handler(async ({ data }) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/open`, {
+    const res = await fetch(`${process.env.API_URL}/open`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -122,7 +120,7 @@ export const openFile = createServerFn({ method: "GET" })
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to open file: ${res.status} ${res.statusText}`);
+      throw new Error(`Failed to open file`);
     }
 
     return await res.json();

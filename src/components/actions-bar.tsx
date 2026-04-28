@@ -74,8 +74,9 @@ export default function ActionsBar() {
     <nav className="flex gap-4 mt-4 items-center">
       <div className="flex items-center gap-2">
         {selectedItems.files.length > 0 && (
-          <div className="flex items-center gap-2 bg-gray-600/80 rounded-sm p-2">
+          <div className="flex items-center gap-2 bg-gray-600/80 hover:bg-gray-200/70 hover:text-black rounded-xs p-2">
             <Checkbox
+              className="outline-red-400"
               name="selectAll"
               id="selectAll"
               checked={totalSelectedItems === data?.files.length}
@@ -90,7 +91,7 @@ export default function ActionsBar() {
         <div className="flex gap-1">
           <Button
             size="icon"
-            className="bg-gray-600 text-white"
+            className="border-gray-200/30 bg-gray-600 text-white hover:text-black rounded-xs"
             onClick={() => handleSetupAction("COPY")}
             disabled={totalSelectedItems === 0}
           >
@@ -98,7 +99,7 @@ export default function ActionsBar() {
           </Button>
           <Button
             size="icon"
-            className="bg-gray-600 text-white"
+            className="bg-gray-600 border-gray-200/30 text-white hover:text-black rounded-xs"
             onClick={() => handleSetupAction("MOVE")}
             disabled={totalSelectedItems === 0}
           >
@@ -106,14 +107,14 @@ export default function ActionsBar() {
           </Button>
           <Button
             size="icon"
-            className="bg-gray-600 text-white"
+            className="bg-gray-600 border-gray-200/30 text-white hover:text-black rounded-xs"
             onClick={handlePaste}
             disabled={committedSelection.files.length === 0}
           >
             <Clipboard />
           </Button>
           <Button
-            className="bg-red-700 text-gray-100 ms-4"
+            className="bg-red-700 text-white hover:text-black ms-4 rounded-xs"
             size="icon"
             onClick={handleDelete}
             disabled={totalSelectedItems === 0}

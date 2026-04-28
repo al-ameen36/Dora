@@ -2,7 +2,8 @@ import * as React from "react";
 import { Slot } from "radix-ui";
 
 import { cn } from "@/lib/utils";
-import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
+import { MoreHorizontalIcon } from "lucide-react";
+import { Button } from "./button";
 
 function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -15,14 +16,19 @@ function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   );
 }
 
-function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
+function BreadcrumbList({
+  className,
+  style,
+  ...props
+}: React.ComponentProps<"ol">) {
   return (
     <ol
       data-slot="breadcrumb-list"
       className={cn(
-        "flex flex-wrap items-center gap-1.5 text-sm wrap-break-word text-muted-foreground sm:gap-2.5",
+        "flex flex-wrap items-center text-sm wrap-break-word text-muted-foreground min-w-[100px]",
         className,
       )}
+      style={{ gap: 1, ...style }}
       {...props}
     />
   );
@@ -32,7 +38,10 @@ function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
   return (
     <li
       data-slot="breadcrumb-item"
-      className={cn("inline-flex items-center gap-1.5", className)}
+      className={cn(
+        "hover:bg-gray-300/40 inline-flex items-center gap-1.5 bg-gray-600/40 border-1 h-[36px] p-2",
+        className,
+      )}
       {...props}
     />
   );
@@ -50,7 +59,10 @@ function BreadcrumbLink({
   return (
     <Comp
       data-slot="breadcrumb-link"
-      className={cn("transition-colors hover:text-foreground", className)}
+      className={cn(
+        "transition-colors hover:text-foreground truncate max-w-[10ch]",
+        className,
+      )}
       {...props}
     />
   );
@@ -63,7 +75,10 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
       role="link"
       aria-disabled="true"
       aria-current="page"
-      className={cn("font-normal text-foreground", className)}
+      className={cn(
+        "font-normal text-foreground truncate max-w-[10ch]",
+        className,
+      )}
       {...props}
     />
   );
@@ -82,7 +97,7 @@ function BreadcrumbSeparator({
       className={cn("[&>svg]:size-3.5", className)}
       {...props}
     >
-      {children ?? <ChevronRightIcon />}
+      {children ?? <div className="w-0.5 h-full bg-gray-200/20" />}
     </li>
   );
 }
@@ -108,6 +123,22 @@ function BreadcrumbEllipsis({
   );
 }
 
+type ButtonProps = React.PropsWithChildren & React.ComponentProps<"button">;
+
+function BreadCrumbButton({ children, className, disabled }: ButtonProps) {
+  return (
+    <Button
+      disabled={Boolean(disabled)}
+      className={cn(
+        className ? className : "",
+        "border-gray-200/20 bg-gray-600/20 hover:text-black text-white rounded-xs truncate max-w-[10ch]",
+      )}
+    >
+      {children}
+    </Button>
+  );
+}
+
 export {
   Breadcrumb,
   BreadcrumbList,
@@ -116,4 +147,5 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
+  BreadCrumbButton,
 };

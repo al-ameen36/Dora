@@ -24,6 +24,7 @@ import { useState, type CSSProperties } from "react";
 import { fileSizeAtom } from "@/state/app";
 import { useAtomValue } from "jotai";
 import { useFilesAPI } from "@/services/files";
+import { cn } from "@/lib/utils";
 
 type Props = {
   file: FileType;
@@ -42,7 +43,10 @@ export function GridItem({ file, style }: Props) {
   return (
     <article
       onClick={handleOpen}
-      className={`relative w-[${fileSize.width}px] h-[${fileSize.height}px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-sm`}
+      className={cn(
+        `relative w-[${fileSize.width}px] h-[${fileSize.height}px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-xs transition`,
+        isChecked(file) ? "bg-gray-200/60 hover:bg-gray-200/40 text-black" : "",
+      )}
       style={style}
     >
       {file.size === -1 ? (
