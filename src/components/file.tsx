@@ -21,8 +21,6 @@ import {
 import PendingFile from "./pending-file";
 import { useFileActions } from "@/utils/file-actions";
 import { useState, type CSSProperties } from "react";
-import { fileSizeAtom } from "@/state/app";
-import { useAtomValue } from "jotai";
 import { useFilesAPI } from "@/services/files";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +31,6 @@ type Props = {
 
 export function GridItem({ file, style }: Props) {
   const { handleSelect, isChecked, handleOpenFolder } = useFileActions();
-  const fileSize = useAtomValue(fileSizeAtom);
   const { openFiles } = useFilesAPI();
 
   const handleOpen = file.isDirectory
@@ -44,7 +41,7 @@ export function GridItem({ file, style }: Props) {
     <article
       onClick={handleOpen}
       className={cn(
-        `relative w-[${fileSize.width}px] h-[${fileSize.height}px] cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-xs transition`,
+        `relative cursor-pointer bg-gray-200/3 hover:bg-gray-200/10 border p-2 rounded-xs transition`,
         isChecked(file) ? "bg-gray-200/60 hover:bg-gray-200/40 text-black" : "",
       )}
       style={style}

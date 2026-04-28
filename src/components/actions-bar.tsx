@@ -32,6 +32,12 @@ export default function ActionsBar() {
     setAction(action);
   };
 
+  const clearAllSelections = () => {
+    handleResetSelection();
+    setCommitedSelection({ files: [], from: "", to: "" });
+    setAction("NONE");
+  };
+
   const handlePaste = async () => {
     if (action === "COPY")
       copyFiles.mutate({
@@ -50,8 +56,7 @@ export default function ActionsBar() {
         },
       });
 
-    handleResetSelection();
-    handleResetSelection(setCommitedSelection);
+    clearAllSelections();
   };
 
   const handleDelete = async () => {
@@ -62,8 +67,7 @@ export default function ActionsBar() {
       },
     });
 
-    handleResetSelection();
-    handleResetSelection(setCommitedSelection);
+    clearAllSelections();
   };
 
   useEffect(() => {

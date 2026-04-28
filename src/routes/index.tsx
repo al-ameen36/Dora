@@ -36,7 +36,7 @@ function App() {
   const parentRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  const totalCount = data?.files.length || 0;
+  const totalCount = data?.files?.length || 0;
   const columnsCount = Math.max(
     1,
     Math.floor((containerWidth || 800) / fileSize.width),
